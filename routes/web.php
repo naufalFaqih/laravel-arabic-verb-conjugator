@@ -1,9 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\VerbController;
+use App\Http\Controllers\ApiController;
+
+Route::get('/api/search-verb', [ApiController::class, 'searchVerb'])->name('api.searchVerb');
 
 Route::get('/', function () {
-    return view('home', ['title' => 'Home Page']);
+    return view('home', ['title' => 'تصرف الفعل']);
 });
 Route::get('/about', function () {
     return view('about', ['title' => 'About Page']);
@@ -16,3 +20,5 @@ Route::get('/blog', function () {
 Route::get('/kontak', function () {
     return view('kontak', ['title' => 'Kontak Page']);
 });
+
+Route::get('/search-verb', [VerbController::class, 'search'])->name('searchVerb');
