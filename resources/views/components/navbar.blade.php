@@ -9,14 +9,28 @@
             <div class="ml-10 flex items-baseline space-x-4">
               <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
               <x-nav-link href='/' :active="request() -> is('/')">Beranda</x-nav-link>
-              <x-nav-link href='/blog' :active="request() -> is('blog')">Blog</x-nav-link>
-              <x-nav-link href='/about' :active="request() -> is('about')">About</x-nav-link>
-              <x-nav-link href='/kontak' :active="request() -> is('kontak')">Kontak</x-nav-link>
+              <x-nav-link href='/about' :active="request() -> is('about')">Tentang</x-nav-link>
             </div>
           </div>
         </div>
         <div class="hidden md:block">
           <div class="ml-4 flex items-center md:ml-6">
+
+ <!-- Auth Links - Tampilkan berdasarkan status autentikasi -->
+            @guest
+                <!-- Tombol Login dan Register untuk tamu -->
+                <a href="{{ route('login') }}" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Login</a>
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Register</a>
+                @endif
+            @else
+                <!-- Link Riwayat Pencarian untuk user yang sudah login -->
+                <a href="{{ route('history') }}" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Riwayat
+                </a>
 
             <!-- Profile dropdown -->
             <div class="relative ml-3">
@@ -24,7 +38,11 @@
                 <button type="button"  @click="isOpen = !isOpen" class="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
                   <span class="absolute -inset-1.5"></span>
                   <span class="sr-only">Open user menu</span>
-                  <img class="size-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
+                        @if (Auth::user()->profile_photo_path)
+                            <img class="size-8 rounded-full" src="{{ asset('storage/' . Auth::user()->profile_photo_path) }}" alt="{{ Auth::user()->name }}">
+                        @else
+                            <img class="size-8 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" alt="{{ Auth::user()->name }}">
+                        @endif
                 </button>
               </div>
 
@@ -37,14 +55,27 @@
               x-transition:leave-start="opacity-100 scale-100"
               x-transition:leave-end="opacity-0 scale-95"
               class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
-                <!-- Active: "bg-gray-100 outline-none", Not Active: "" -->
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">Your Profile</a>
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1">Settings</a>
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-2">Sign out</a>
-              </div>
+                 <!-- User Profile -->
+                    <div class="px-4 py-2 text-xs text-gray-500">
+                        {{ Auth::user()->name }}
+                    </div>
+                    
+                    <!-- Dropdown Links -->
+                    <a href="{{ route('history') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Riwayat Pencarian</a>
+                    
+                    <!-- Logout Form -->
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                            Logout
+                        </button>
+                    </form>
             </div>
           </div>
+           @endguest
+          </div>
         </div>
+
         <div class="-mr-2 flex md:hidden">
           <!-- Mobile menu button -->
           <button type="button"  @click="isOpen = !isOpen" class="relative inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" aria-controls="mobile-menu" aria-expanded="false">
@@ -63,30 +94,49 @@
       </div>
     </div>
 
-    <!-- Mobile menu, show/hide based on menu state. -->
+    <!-- Mobile menu -->
     <div x-show="isOpen" class="md:hidden" id="mobile-menu">
+      <!-- Menu Navigasi Mobile -->
       <div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
-        <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-        <a href="/" class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white" aria-current="page">Home</a>
-        <a href="/blog" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Blog</a>
-        <a href="/about" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</a>
-        <a href="/kontak" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Contact</a>
+        <a href="/" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('/') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">Home</a>
+        <a href="/about" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('about') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">About</a>
       </div>
+      
+      <!-- Mobile Auth Menu -->
       <div class="border-t border-gray-700 pb-3 pt-4">
-        <div class="flex items-center px-5">
-          <div class="shrink-0">
-            <img class="size-10 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
-          </div>
-          <div class="ml-3">
-            <div class="text-base/5 font-medium text-white">Tom Cook</div>
-            <div class="text-sm font-medium text-gray-400">tom@example.com</div>
-          </div>
-        </div>
-        <div class="mt-3 space-y-1 px-2">
-          <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">Your Profile</a>
-          <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">Settings</a>
-          <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">Sign out</a>
-        </div>
+        @guest
+            <div class="mt-3 space-y-1 px-2">
+              <a href="{{ route('login') }}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">Login</a>
+              @if (Route::has('register'))
+                <a href="{{ route('register') }}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">Register</a>
+              @endif
+            </div>
+        @else
+            <div class="flex items-center px-5">
+              <div class="shrink-0">
+                @if (Auth::user()->profile_photo_path)
+                    <img class="size-10 rounded-full" src="{{ asset('storage/' . Auth::user()->profile_photo_path) }}" alt="{{ Auth::user()->name }}">
+                @else
+                    <img class="size-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" alt="{{ Auth::user()->name }}">
+                @endif
+              </div>
+              <div class="ml-3">
+                <div class="text-base/5 font-medium text-white">{{ Auth::user()->name }}</div>
+                <div class="text-sm font-medium text-gray-400">{{ Auth::user()->email }}</div>
+              </div>
+            </div>
+            <div class="mt-3 space-y-1 px-2">
+              <a href="{{ route('history') }}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">Riwayat Pencarian</a>
+              
+              <!-- Mobile Logout -->
+              <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="w-full text-left block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">
+                  Logout
+                </button>
+              </form>
+            </div>
+        @endguest
       </div>
     </div>
   </nav>
