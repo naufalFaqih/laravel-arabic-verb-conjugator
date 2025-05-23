@@ -1,7 +1,7 @@
 # Tashrif Arab - Arabic Verb Conjugation App
 
 <p align="center">
-  <img src="public/img/logoam.png" width="400" alt="Laravel Logo">
+  <img src="public/img/logoam.png" width="200" alt="Laravel Logo">
 </p>
 
 <p align="center">
