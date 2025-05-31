@@ -5,6 +5,7 @@ use App\Http\Controllers\VerbController;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\TranslationController;
 // Pastikan controller diimpor dengan benar
 use App\Http\Controllers\SearchHistoryController;
 
@@ -37,10 +38,20 @@ Route::middleware('auth')->group(function () {
     Route::delete('/history', [SearchHistoryController::class, 'destroyAll'])->name('history.destroy.all');
 });
 Route::get('/api/search-verb', [ApiController::class, 'searchVerb'])->name('api.searchVerb');
+Route::post('/api/translate', [App\Http\Controllers\TranslationController::class, 'translate'])->name('api.translate');
 
 Route::get('/about', function () {
     return view('about', ['title' => 'About Page']);
 });
 
+Route::get('/test-translation', function () {
+    return view('test-translation', ['title' => 'Test Translation']);
+});
+
+// Rute untuk terjemahan dan cek API
+// Rute untuk terjemahan
+Route::post('/api/translate', [App\Http\Controllers\TranslationController::class, 'translate'])->name('api.translate');
+Route::post('/api/translate/batch', [App\Http\Controllers\TranslationController::class, 'batchTranslate'])->name('api.translate.batch');
+Route::post('/api/translate/check', [App\Http\Controllers\TranslationController::class, 'checkApi'])->name('api.translate.check');
 Route::get('/search-verb', [VerbController::class, 'search'])->name('searchVerb');
 

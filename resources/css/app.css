@@ -21,3 +21,87 @@
         transform: rotate(360deg);
     }
 }
+/* Gaya untuk tabel ringkasan */
+#summary table {
+    direction: rtl; /* Untuk konten bahasa Arab */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+#summary th {
+    background-color: #f3f4f6;
+    font-weight: 700;
+    padding: 0.75rem 1rem;
+    position: relative;
+}
+
+#summary th::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #4f46e5;
+    transform: scaleX(0.7);
+    transition: transform 0.3s ease;
+}
+
+#summary th:hover::after {
+    transform: scaleX(1);
+}
+
+#summary td {
+    transition: background-color 0.2s;
+}
+
+#summary tr:hover td {
+    background-color: #f9fafb;
+}
+/* Translation Loading Animation */
+.translation-loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.translation-loading span {
+    animation: pulse 1.4s infinite ease-in-out;
+    background-color: #9ca3af;
+    border-radius: 50%;
+    display: inline-block;
+    height: 4px;
+    width: 4px;
+}
+
+.translation-loading span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.translation-loading span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+.translation-error {
+    color: #ef4444;
+    font-size: 0.75rem;
+    font-style: italic;
+}
+
+.translation-text {
+    font-style: italic;
+    color: #6b7280;
+}

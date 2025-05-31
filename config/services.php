@@ -13,6 +13,10 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
+    
+'google_translate' => [
+    'api_key' => env('GOOGLE_TRANSLATE_API_KEY', 'AIzaSyBk7iLFuuVjZuYMTBZmC6FycZHjEjg2Yio'),
+],
 
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),

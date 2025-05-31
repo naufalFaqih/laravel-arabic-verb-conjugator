@@ -1,5 +1,7 @@
 @vite('resources/css/app.css')
+@vite('resources/js/translation.js')
 @vite('resources/js/search.js')
+@vite('resources/js/translation-debug.js')
 <x-layout>
   <x-slot:title>{{ $title }}</x-slot:title>
 
@@ -82,11 +84,62 @@
   <p class="text-lg font-medium text-gray-700">Memproses permintaan...</p>
 </div>
 
+{{-- Ringkasan Pencarian --}}
+<div class="mt-6 p-4 bg-white rounded-lg shadow-md hidden" id="summary">
+  <h3 class="text-lg text-gray-700 font-bold mb-3 text-right">:ملخص البحث / Ringkasan Pencarian</h3>
+  
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white border border-gray-200">
+      <thead>
+        <tr>
+          <th class="px-4 py-2 bg-gray-50 text-gray-700 text-center border border-gray-200">
+            الماضي
+            <br/><span class="text-xs font-normal">Madhi (Past)</span>
+          </th>
+          <th class="px-4 py-2 bg-gray-50 text-gray-700 text-center border border-gray-200">
+            المضارع
+            <br/><span class="text-xs font-normal">Mudhori (Present)</span>
+          </th>
+          <th class="px-4 py-2 bg-gray-50 text-gray-700 text-center border border-gray-200">
+            الأمر
+            <br/><span class="text-xs font-normal">Amar (Perintah)</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="px-4 py-2 text-center border border-gray-200">
+            <div id="summary-madhi" class="text-lg font-bold arabic-text" data-translate-arabic="">-</div>
+            <div class="translation-text text-xs mt-2 text-gray-600"></div>
+          </td>
+          <td class="px-4 py-2 text-center border border-gray-200">
+            <div id="summary-mudhori" class="text-lg font-bold arabic-text" data-translate-arabic="">-</div>
+            <div class="translation-text text-xs mt-2 text-gray-600"></div>
+          </td>
+          <td class="px-4 py-2 text-center border border-gray-200">
+            <div id="summary-amar" class="text-lg font-bold arabic-text" data-translate-arabic="">-</div>
+            <div class="translation-text text-xs mt-2 text-gray-600"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 {{-- Informasi Kata Kerja --}}
 <div id="verbInfo" class="mt-6 p-4 bg-gray-100 rounded-lg shadow-md hidden">
-  <h3 class="text-md  text-gray-700 text-right">:Informasi Kata Kerja</h3>
-  <p id="verbInfoContent" class="mt-2 text-lg text-gray-600 text-right font-bold"></p>
-  <h3 class="text-md text-gray-700 text-right mt-6">:Ditemukan Juga Pada Bab:</h3>
+  <h3 class="text-md  text-gray-700 text-right">
+    <span class="arabic-text" data-translate-arabic="">:Informasi Kata Kerja</span>
+    <div class="translation-text text-xs mt-1"></div>
+  </h3>
+  <div class="mt-2">
+    <div id="verbInfoContent" class="text-lg text-gray-600 text-right font-bold arabic-text" data-translate-arabic="">-</div>
+    <div class="translation-text text-xs mt-2 text-gray-600"></div>
+  </div>
+  <h3 class="text-md text-gray-700 text-right mt-6">  
+    <span class="arabic-text" data-translate-arabic="">:Ditemukan Juga Pada Bab</span>
+    <div class="translation-text text-xs mt-1"></div>
+  </h3>
   <ul id="suggestList" class="mt-4 mb-2 text-lg text-gray-600 text-right font-bold"></ul>
 </div>
 
@@ -145,5 +198,66 @@
       @endif
     </div>
 @endauth
+
+<script>
+// Script bantuan untuk memastikan terjemahan dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    // Tunggu 1 detik untuk memastikan semua JS dimuat
+    setTimeout(() => {
+        // Hapus cache terjemahan yang rusak
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('google_translate_')) {
+                const value = localStorage.getItem(key);
+                // Jika nilai cache adalah teks Arab (mengandung karakter Arab)
+                if (/[\u0600-\u06FF]/.test(value)) {
+                    console.log(`Removing invalid Google Translate cache: ${key}`);
+                    localStorage.removeItem(key);
+                }
+            }
+        }
+        
+        // Tunggu sedikit kemudian terjemahkan semua
+        setTimeout(() => {
+            if (window.TranslationEnhanced) {
+                window.TranslationEnhanced.translateAll();
+            }
+        }, 500);
+    }, 1000);
+    
+    // Observer untuk menerjemahkan elemen yang baru ditambahkan
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) { // Element node
+                        const elementsToTranslate = node.querySelectorAll ? 
+                            node.querySelectorAll('[data-translate-arabic]') : [];
+                        
+                        if (elementsToTranslate.length > 0 && window.TranslationEnhanced) {
+                            setTimeout(() => {
+                                window.TranslationEnhanced.translateAll();
+                            }, 100);
+                        }
+                    }
+                });
+            }
+        });
+    });
+    
+    // Observasi perubahan DOM
+    observer.observe(document.body, { childList: true, subtree: true });
+});
+
+// Fungsi untuk console debugging
+window.debugGoogleTranslate = {
+    test: () => window.debugTranslation.checkGoogleTranslateAPI(),
+    batch: () => window.debugTranslation.testBatchTranslation(),
+    force: () => window.debugTranslation.forceGoogleTranslation(),
+    clear: () => window.TranslationEnhanced.clearCache()
+};
+
+console.log('🌐 Google Translate integration loaded. Use window.debugGoogleTranslate for testing.');
+</script>
 
 </x-layout>

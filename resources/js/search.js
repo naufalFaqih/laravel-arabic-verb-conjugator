@@ -1,3 +1,69 @@
+function displaySearchSummary(data) {
+    const summaryElement = document.getElementById("summary");
+    const madhiCell = document.getElementById("summary-madhi");
+    const mudhoriCell = document.getElementById("summary-mudhori");
+    const amarCell = document.getElementById("summary-amar");
+
+    //pastikan elemen ringkasan ada
+    if (!summaryElement || !madhiCell || !mudhoriCell || !amarCell) {
+        console.warn("elemen ringkasan pencarian tidak ditemukan");
+        return;
+    }
+
+    let madhiText = "-";
+    let mudhoriText = "-";
+    let amarText = "-";
+
+    if (data.result[9] && data.result[9][1]) {
+        madhiText = data.result[9][1] || "-";
+        mudhoriText = data.result[9][2] || "-";
+    }
+
+    if (data.result[3] && data.result[3][6]) {
+        amarText = data.result[3][6] || "-";
+    }
+
+    // Jika masih kosong, coba dari format tashrif
+    if (madhiText === "-" && data.tashrif) {
+        if (data.tashrif.madhi) madhiText = data.tashrif.madhi;
+        if (data.tashrif.mudhori) mudhoriText = data.tashrif.mudhori;
+        if (data.tashrif.amr) amarText = data.tashrif.amr;
+    }
+
+    // Isi sel-sel tabel dan tambahkan atribut untuk terjemahan
+    madhiCell.textContent = madhiText;
+    madhiCell.setAttribute("data-translate-arabic", madhiText);
+
+    mudhoriCell.textContent = mudhoriText;
+    mudhoriCell.setAttribute("data-translate-arabic", mudhoriText);
+
+    amarCell.textContent = amarText;
+    amarCell.setAttribute("data-translate-arabic", amarText);
+
+    // Log untuk debugging
+    console.log("Ringkasan data diperbarui:", {
+        madhi: madhiText,
+        mudhori: mudhoriText,
+        amar: amarText,
+    });
+
+    // Tampilkan ringkasan
+    summaryElement.classList.remove("hidden");
+
+    // PENTING: Tunggu DOM dirender sebelum memanggil terjemahan
+    setTimeout(() => {
+        console.log("Triggering translation after summary is displayed");
+        if (
+            window.TranslationAPI &&
+            typeof window.TranslationAPI.translateAll === "function"
+        ) {
+            window.TranslationAPI.translateAll();
+        } else {
+            console.error("TranslationAPI.translateAll is not available");
+        }
+    }, 200);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     // Check for query parameter in URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -170,7 +236,10 @@ document
                 );
             }
 
-            const data = await response.json(); // Parse hasil response
+            const data = await response.json();
+
+            // Tampilkan ringkasan pencarian dengan data dari API
+            displaySearchSummary(data); // Parse hasil response
 
             // Tampilkan hasil JSON lengkap
             //document.getElementById("resultContent").textContent =
@@ -193,23 +262,33 @@ document
                 console.log("Data.result tersedia:", typeof data.result);
             } else {
                 console.warn("Data.result tidak tersedia");
-            }
-
-            // Tampilkan informasi kata kerja
+            } // Tampilkan informasi kata kerja
             if (verbInfoElement) {
                 const verbInfoContent =
                     document.getElementById("verbInfoContent");
 
                 // Logic untuk menampilkan verbInfo
+                let verbInfoText = "";
                 if (data.verb_info) {
-                    verbInfoContent.textContent = data.verb_info;
+                    verbInfoText = data.verb_info;
                 } else if (data.result && data.result[0] && data.result[0][0]) {
-                    verbInfoContent.textContent = data.result[0][0];
+                    verbInfoText = data.result[0][0];
                 } else {
-                    verbInfoContent.textContent = `الفعل ${verb}`;
+                    verbInfoText = `الفعل ${verb}`;
                 }
 
+                verbInfoContent.textContent = verbInfoText;
+                verbInfoContent.setAttribute(
+                    "data-translate-arabic",
+                    verbInfoText
+                );
+
                 verbInfoElement.classList.remove("hidden");
+
+                // Terjemahkan verbInfo
+                if (window.translateAllMarkedElements) {
+                    window.translateAllMarkedElements();
+                }
             }
             /*
             if (data.result && Array.isArray(data.result[0])) {
