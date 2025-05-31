@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    {{-- Favicon Configuration --}}
+    <link rel="icon" type="image/x-icon" href="{{ asset('img/logo am.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('img/logo am.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('img/logo am.png') }}">
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('img/logo am.png') }}">
+    
+    {{-- Apple Touch Icon --}}
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('img/logo am.png') }}">
+    
+    {{-- Android Chrome Icons --}}
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('img/logo am.png') }}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ asset('img/logo am.png') }}">
+    
+    {{-- SVG Icon (modern browsers) --}}
+    <link rel="icon" type="image/svg+xml" href="{{ asset('img/favicon.svg') }}">
 @auth
     <meta name="auth-check" content="true">
 @else
