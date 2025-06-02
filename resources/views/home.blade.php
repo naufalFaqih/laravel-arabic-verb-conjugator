@@ -94,11 +94,11 @@
         <tr>
           <th class="px-4 py-2 bg-gray-50 text-gray-700 text-center border border-gray-200">
             الماضي
-            <br/><span class="text-xs font-normal">Madhi (Past)</span>
+            <br/><span class="text-xs font-normal">Madhi (Lampau)</span>
           </th>
           <th class="px-4 py-2 bg-gray-50 text-gray-700 text-center border border-gray-200">
             المضارع
-            <br/><span class="text-xs font-normal">Mudhori (Present)</span>
+            <br/><span class="text-xs font-normal">Mudhori (Saat ini)</span>
           </th>
           <th class="px-4 py-2 bg-gray-50 text-gray-700 text-center border border-gray-200">
             الأمر
@@ -200,18 +200,260 @@
 @endauth
 
 <script>
-// Script bantuan untuk memastikan terjemahan dimuat
-document.addEventListener('DOMContentLoaded', function() {
-    // Tunggu 1 detik untuk memastikan semua JS dimuat
+// Translation Enhanced untuk DeepSeek API dengan debugging
+window.TranslationEnhanced = {
+    cache: new Map(),
+    debugMode: true,
+
+    log: function(message, data = null) {
+        if (this.debugMode) {
+            console.log(`[Translation] ${message}`, data || '');
+        }
+    },
+
+    error: function(message, error = null) {
+        console.error(`[Translation Error] ${message}`, error || '');
+    },
+
+    translateAll: function () {
+        this.log("🔄 Starting DeepSeek translation for all elements...");
+
+        const elements = document.querySelectorAll("[data-translate-arabic]");
+        this.log(`📝 Found ${elements.length} elements to translate`);
+
+        if (elements.length === 0) {
+            this.log("⚠️ No elements with data-translate-arabic found");
+            return;
+        }
+
+        elements.forEach((element, index) => {
+            const arabicText = element.getAttribute("data-translate-arabic");
+
+            this.log(`Element ${index + 1}:`, {
+                id: element.id,
+                text: arabicText,
+                element: element
+            });
+
+            if (!arabicText || arabicText === "-" || arabicText.trim() === "") {
+                this.log(`⏭️ Skipping element ${index + 1}: empty text`);
+                return;
+            }
+
+            let translationElement = this.findOrCreateTranslationElement(element);
+            this.translateElement(arabicText, translationElement, element.id || `element-${index}`);
+        });
+    },
+
+    findOrCreateTranslationElement: function (element) {
+        let translationElement = element.nextElementSibling;
+
+        if (translationElement && translationElement.classList.contains("translation-text")) {
+            this.log("Found existing translation element");
+            return translationElement;
+        }
+
+        let parentTranslation = element.parentElement.querySelector(".translation-text");
+        if (parentTranslation) {
+            this.log("Found parent translation element");
+            return parentTranslation;
+        }
+
+        this.log("Creating new translation element");
+        translationElement = document.createElement("div");
+        translationElement.className = "translation-text text-xs mt-2 text-gray-600";
+
+        if (element.nextSibling) {
+            element.parentNode.insertBefore(translationElement, element.nextSibling);
+        } else {
+            element.parentNode.appendChild(translationElement);
+        }
+
+        return translationElement;
+    },
+
+    translateElement: function (arabicText, targetElement, sourceId = "") {
+        this.log(`🔤 Translating "${arabicText}" for element ${sourceId} using DeepSeek`);
+
+        if (this.cache.has(arabicText)) {
+            const cachedTranslation = this.cache.get(arabicText);
+            this.log(`💾 Using memory cache: ${cachedTranslation}`);
+            targetElement.textContent = cachedTranslation;
+            return Promise.resolve(cachedTranslation);
+        }
+
+        const cacheKey = `deepseek_translate_${btoa(encodeURIComponent(arabicText))}`;
+        const cachedTranslation = localStorage.getItem(cacheKey);
+
+        if (cachedTranslation && !/[\u0600-\u06FF]/.test(cachedTranslation)) {
+            this.log(`💽 Using localStorage cache: ${cachedTranslation}`);
+            targetElement.textContent = cachedTranslation;
+            this.cache.set(arabicText, cachedTranslation);
+            return Promise.resolve(cachedTranslation);
+        }
+
+        targetElement.innerHTML = '<div class="translation-loading inline-flex gap-1"><span>•</span><span>•</span><span>•</span></div>';
+
+        return this.callTranslationAPI(arabicText)
+            .then((translation) => {
+                if (translation) {
+                    targetElement.textContent = translation;
+                    this.cache.set(arabicText, translation);
+                    localStorage.setItem(cacheKey, translation);
+                    this.log(`✅ DeepSeek translation success for "${arabicText}": ${translation}`);
+                    return translation;
+                } else {
+                    throw new Error("No translation returned");
+                }
+            })
+            .catch((error) => {
+                this.error(`Translation failed for "${arabicText}":`, error);
+                const localTranslation = this.getLocalTranslation(arabicText);
+                if (localTranslation) {
+                    targetElement.textContent = localTranslation + " (lokal)";
+                    return localTranslation;
+                } else {
+                    targetElement.innerHTML = '<span class="translation-error text-red-500 text-xs">Gagal menerjemahkan</span>';
+                    return null;
+                }
+            });
+    },
+
+    callTranslationAPI: function (text) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+        if (!csrfToken) {
+            this.error("CSRF token not found");
+            return Promise.reject(new Error("CSRF token not found"));
+        }
+
+        this.log(`🌐 Calling API for: "${text}"`);
+
+        const requestData = {
+            text: text,
+            source: "ar",
+            target: "id",
+            force: false,
+        };
+
+        this.log("Request data:", requestData);
+
+        return fetch("/api/translate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": csrfToken,
+                Accept: "application/json",
+            },
+            body: JSON.stringify(requestData),
+        })
+        .then((response) => {
+            this.log(`API Response status: ${response.status}`);
+            
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then((data) => {
+            this.log("API Response data:", data);
+            
+            if (data.success && data.translation) {
+                return data.translation;
+            }
+            throw new Error(data.message || "Translation failed");
+        })
+        .catch((error) => {
+            this.error("API call failed:", error);
+            throw error;
+        });
+    },
+
+    getLocalTranslation: function (text) {
+        const localDict = {
+            'الماضي': "masa lampau",
+            'المضارع': "masa sekarang", 
+            'الأمر': "perintah",
+            'كَتَبَ': "menulis (dia lk)",
+            'يَكْتُبُ': "sedang menulis (dia lk)",
+            'اُكْتُبْ': "tulislah!",
+            'Informasi Kata Kerja': "Informasi Kata Kerja",
+            'Ditemukan Juga Pada Bab': "Ditemukan Juga Pada Bab"
+        };
+
+        if (localDict[text]) {
+            return localDict[text];
+        }
+
+        for (const [key, value] of Object.entries(localDict)) {
+            if (text.includes(key)) {
+                return value + " (sebagian)";
+            }
+        }
+
+        return null;
+    },
+
+    clearCache: function () {
+        this.cache.clear();
+        const keys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith("deepseek_translate_")) {
+                keys.push(key);
+            }
+        }
+        keys.forEach((key) => localStorage.removeItem(key));
+        this.log(`🗑️ Cleared ${keys.length} DeepSeek translation cache entries`);
+    },
+
+    forceRetranslate: function () {
+        this.log("🔄 Force retranslating all elements with DeepSeek...");
+        this.clearCache();
+        document.querySelectorAll(".translation-text").forEach((el) => {
+            el.innerHTML = "";
+        });
+        setTimeout(() => {
+            this.translateAll();
+        }, 500);
+    },
+
+    testAPI: function() {
+        this.log("🧪 Testing DeepSeek API...");
+        
+        return fetch('/api/translate/check', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            this.log("API Test Result:", data);
+            return data;
+        })
+        .catch(error => {
+            this.error("API Test Failed:", error);
+            throw error;
+        });
+    }
+};
+
+// Auto-initialize
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("🌐 DeepSeek Translation Enhanced loading...");
+
+    // Tunggu sebentar untuk memastikan semua elemen dimuat
     setTimeout(() => {
         // Hapus cache terjemahan yang rusak
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            if (key && key.startsWith('google_translate_')) {
+            if (key && key.startsWith('deepseek_translate_')) {
                 const value = localStorage.getItem(key);
                 // Jika nilai cache adalah teks Arab (mengandung karakter Arab)
                 if (/[\u0600-\u06FF]/.test(value)) {
-                    console.log(`Removing invalid Google Translate cache: ${key}`);
+                    console.log(`Removing invalid DeepSeek cache: ${key}`);
                     localStorage.removeItem(key);
                 }
             }
@@ -249,15 +491,85 @@ document.addEventListener('DOMContentLoaded', function() {
     observer.observe(document.body, { childList: true, subtree: true });
 });
 
-// Fungsi untuk console debugging
-window.debugGoogleTranslate = {
-    test: () => window.debugTranslation.checkGoogleTranslateAPI(),
-    batch: () => window.debugTranslation.testBatchTranslation(),
-    force: () => window.debugTranslation.forceGoogleTranslation(),
-    clear: () => window.TranslationEnhanced.clearCache()
+// Export untuk penggunaan global
+window.TranslationAPI = window.TranslationEnhanced;
+
+// Debug functions untuk testing
+window.debugDeepSeek = {
+    testAPI: () => {
+        console.log("🧪 Testing DeepSeek API directly...");
+        if (window.TranslationEnhanced && window.TranslationEnhanced.testAPI) {
+            return window.TranslationEnhanced.testAPI();
+        } else {
+            console.error("TranslationEnhanced not found or testAPI method missing");
+            return Promise.reject("TranslationEnhanced not available");
+        }
+    },
+    
+    testTranslation: (text = "السلام عليكم") => {
+        console.log(`🔤 Testing translation for: ${text}`);
+        if (window.TranslationEnhanced && window.TranslationEnhanced.callTranslationAPI) {
+            return window.TranslationEnhanced.callTranslationAPI(text);
+        } else {
+            console.error("TranslationEnhanced not found or callTranslationAPI method missing");
+            return Promise.reject("TranslationEnhanced not available");
+        }
+    },
+    
+    checkElements: () => {
+        const elements = document.querySelectorAll('[data-translate-arabic]');
+        console.log(`Found ${elements.length} elements with data-translate-arabic:`);
+        elements.forEach((el, i) => {
+            console.log(`${i + 1}.`, {
+                id: el.id,
+                text: el.getAttribute('data-translate-arabic'),
+                element: el
+            });
+        });
+        return elements;
+    },
+    
+    forceTranslate: () => {
+        if (window.TranslationEnhanced && window.TranslationEnhanced.forceRetranslate) {
+            window.TranslationEnhanced.forceRetranslate();
+        } else {
+            console.error("TranslationEnhanced not found or forceRetranslate method missing");
+        }
+    },
+    
+    clearCache: () => {
+        if (window.TranslationEnhanced && window.TranslationEnhanced.clearCache) {
+            window.TranslationEnhanced.clearCache();
+        } else {
+            console.error("TranslationEnhanced not found or clearCache method missing");
+        }
+    },
+    
+    checkStatus: () => {
+        console.log("🔍 Checking TranslationEnhanced status:");
+        console.log("window.TranslationEnhanced:", window.TranslationEnhanced);
+        console.log("window.TranslationAPI:", window.TranslationAPI);
+        
+        if (window.TranslationEnhanced) {
+            console.log("Available methods:", Object.keys(window.TranslationEnhanced));
+        }
+        
+        return {
+            TranslationEnhanced: !!window.TranslationEnhanced,
+            TranslationAPI: !!window.TranslationAPI,
+            methods: window.TranslationEnhanced ? Object.keys(window.TranslationEnhanced) : []
+        };
+    }
 };
 
-console.log('🌐 Google Translate integration loaded. Use window.debugGoogleTranslate for testing.');
+console.log('🔧 Debug tools loaded. Use window.debugDeepSeek for testing.');
+console.log('Available commands:');
+console.log('- testAPI()');
+console.log('- testTranslation(text)');
+console.log('- checkElements()');
+console.log('- forceTranslate()');
+console.log('- clearCache()');
+console.log('- checkStatus()');
 </script>
 
 </x-layout>

@@ -1,37 +1,45 @@
-// Translation Enhanced untuk Google Translate
+// Translation Enhanced untuk DeepSeek API dengan debugging
 window.TranslationEnhanced = {
-    /**
-     * Cache untuk menyimpan hasil terjemahan
-     */
     cache: new Map(),
+    debugMode: true,
 
-    /**
-     * Terjemahkan semua elemen dengan data-translate-arabic
-     */
+    log: function (message, data = null) {
+        if (this.debugMode) {
+            console.log(`[Translation] ${message}`, data || "");
+        }
+    },
+
+    error: function (message, error = null) {
+        console.error(`[Translation Error] ${message}`, error || "");
+    },
+
     translateAll: function () {
-        console.log("🔄 Starting enhanced translation for all elements...");
+        this.log("🔄 Starting DeepSeek translation for all elements...");
 
         const elements = document.querySelectorAll("[data-translate-arabic]");
-        console.log(`📝 Found ${elements.length} elements to translate`);
+        this.log(`📝 Found ${elements.length} elements to translate`);
 
         if (elements.length === 0) {
-            console.log("⚠️ No elements with data-translate-arabic found");
+            this.log("⚠️ No elements with data-translate-arabic found");
             return;
         }
 
         elements.forEach((element, index) => {
             const arabicText = element.getAttribute("data-translate-arabic");
 
+            this.log(`Element ${index + 1}:`, {
+                id: element.id,
+                text: arabicText,
+                element: element,
+            });
+
             if (!arabicText || arabicText === "-" || arabicText.trim() === "") {
-                console.log(`⏭️ Skipping element ${index + 1}: empty text`);
+                this.log(`⏭️ Skipping element ${index + 1}: empty text`);
                 return;
             }
 
-            // Cari atau buat elemen terjemahan
             let translationElement =
                 this.findOrCreateTranslationElement(element);
-
-            // Terjemahkan
             this.translateElement(
                 arabicText,
                 translationElement,
@@ -40,33 +48,29 @@ window.TranslationEnhanced = {
         });
     },
 
-    /**
-     * Cari atau buat elemen terjemahan
-     */
     findOrCreateTranslationElement: function (element) {
         let translationElement = element.nextElementSibling;
 
-        // Jika sudah ada elemen translation-text, gunakan itu
         if (
             translationElement &&
             translationElement.classList.contains("translation-text")
         ) {
+            this.log("Found existing translation element");
             return translationElement;
         }
 
-        // Cari di dalam parent element
         let parentTranslation =
             element.parentElement.querySelector(".translation-text");
         if (parentTranslation) {
+            this.log("Found parent translation element");
             return parentTranslation;
         }
 
-        // Buat elemen baru
+        this.log("Creating new translation element");
         translationElement = document.createElement("div");
         translationElement.className =
             "translation-text text-xs mt-2 text-gray-600";
 
-        // Insert setelah element Arab
         if (element.nextSibling) {
             element.parentNode.insertBefore(
                 translationElement,
@@ -79,49 +83,41 @@ window.TranslationEnhanced = {
         return translationElement;
     },
 
-    /**
-     * Terjemahkan elemen individual
-     */
     translateElement: function (arabicText, targetElement, sourceId = "") {
-        console.log(`🔤 Translating "${arabicText}" for element ${sourceId}`);
+        this.log(
+            `🔤 Translating "${arabicText}" for element ${sourceId} using DeepSeek`
+        );
 
-        // Cek cache terlebih dahulu
         if (this.cache.has(arabicText)) {
             const cachedTranslation = this.cache.get(arabicText);
-            console.log(`💾 Using memory cache: ${cachedTranslation}`);
+            this.log(`💾 Using memory cache: ${cachedTranslation}`);
             targetElement.textContent = cachedTranslation;
             return Promise.resolve(cachedTranslation);
         }
 
-        // Cek localStorage
-        const cacheKey = `google_translate_${btoa(
+        const cacheKey = `deepseek_translate_${btoa(
             encodeURIComponent(arabicText)
         )}`;
         const cachedTranslation = localStorage.getItem(cacheKey);
 
         if (cachedTranslation && !/[\u0600-\u06FF]/.test(cachedTranslation)) {
-            console.log(`💽 Using localStorage cache: ${cachedTranslation}`);
+            this.log(`💽 Using localStorage cache: ${cachedTranslation}`);
             targetElement.textContent = cachedTranslation;
             this.cache.set(arabicText, cachedTranslation);
             return Promise.resolve(cachedTranslation);
         }
 
-        // Tampilkan loading
         targetElement.innerHTML =
             '<div class="translation-loading inline-flex gap-1"><span>•</span><span>•</span><span>•</span></div>';
 
-        // Panggil API
         return this.callTranslationAPI(arabicText)
             .then((translation) => {
                 if (translation) {
                     targetElement.textContent = translation;
-
-                    // Simpan ke cache
                     this.cache.set(arabicText, translation);
                     localStorage.setItem(cacheKey, translation);
-
-                    console.log(
-                        `✅ Translation success for "${arabicText}": ${translation}`
+                    this.log(
+                        `✅ DeepSeek translation success for "${arabicText}": ${translation}`
                     );
                     return translation;
                 } else {
@@ -129,12 +125,7 @@ window.TranslationEnhanced = {
                 }
             })
             .catch((error) => {
-                console.error(
-                    `❌ Translation failed for "${arabicText}":`,
-                    error
-                );
-
-                // Coba terjemahan lokal sebagai fallback
+                this.error(`Translation failed for "${arabicText}":`, error);
                 const localTranslation = this.getLocalTranslation(arabicText);
                 if (localTranslation) {
                     targetElement.textContent = localTranslation + " (lokal)";
@@ -147,17 +138,26 @@ window.TranslationEnhanced = {
             });
     },
 
-    /**
-     * Panggil API terjemahan
-     */
     callTranslationAPI: function (text) {
         const csrfToken = document.querySelector(
             'meta[name="csrf-token"]'
         )?.content;
 
         if (!csrfToken) {
+            this.error("CSRF token not found");
             return Promise.reject(new Error("CSRF token not found"));
         }
+
+        this.log(`🌐 Calling API for: "${text}"`);
+
+        const requestData = {
+            text: text,
+            source: "ar",
+            target: "id",
+            force: false,
+        };
+
+        this.log("Request data:", requestData);
 
         return fetch("/api/translate", {
             method: "POST",
@@ -166,14 +166,11 @@ window.TranslationEnhanced = {
                 "X-CSRF-TOKEN": csrfToken,
                 Accept: "application/json",
             },
-            body: JSON.stringify({
-                text: text,
-                source: "ar",
-                target: "id",
-                force: false,
-            }),
+            body: JSON.stringify(requestData),
         })
             .then((response) => {
+                this.log(`API Response status: ${response.status}`);
+
                 if (!response.ok) {
                     throw new Error(
                         `API error: ${response.status} ${response.statusText}`
@@ -182,16 +179,19 @@ window.TranslationEnhanced = {
                 return response.json();
             })
             .then((data) => {
+                this.log("API Response data:", data);
+
                 if (data.success && data.translation) {
                     return data.translation;
                 }
                 throw new Error(data.message || "Translation failed");
+            })
+            .catch((error) => {
+                this.error("API call failed:", error);
+                throw error;
             });
     },
 
-    /**
-     * Ambil terjemahan lokal sebagai fallback
-     */
     getLocalTranslation: function (text) {
         const localDict = {
             الماضي: "masa lampau",
@@ -200,40 +200,14 @@ window.TranslationEnhanced = {
             كَتَبَ: "menulis (dia lk)",
             يَكْتُبُ: "sedang menulis (dia lk)",
             اُكْتُبْ: "tulislah!",
-            كَتَبَتْ: "menulis (dia pr)",
-            تَكْتُبُ: "sedang menulis (dia pr)",
-            كَتَبْتُ: "saya menulis",
-            أَكْتُبُ: "saya sedang menulis",
-            كَتَبْنَا: "kami menulis",
-            نَكْتُبُ: "kami sedang menulis",
-            الفعل: "kata kerja",
-            قَرَأَ: "membaca",
-            يَقْرَأُ: "sedang membaca",
-            اِقْرَأْ: "bacalah!",
-            سَلَّمَ: "menyerahkan/mengucapkan salam",
-            يُسَلِّمُ: "sedang menyerahkan/mengucapkan salam",
-            سَلِّمْ: "serahkanlah!/ucapkan salam!",
-            ضَرَبَ: "memukul",
-            يَضْرِبُ: "sedang memukul",
-            اِضْرِبْ: "pukullah!",
-            اِشْتَغَلَ: "bekerja/sibuk dengan",
-            يَشْتَغِلُ: "sedang bekerja/sibuk dengan",
-            اِشْتَغِلْ: "bekerjalah!/sibukkan diri dengan!",
-            فعل: "kata kerja",
-            "فعل ثلاثي": "kata kerja berwazan ثلاثي",
-            "فعل خماسي": "kata kerja berwazan خماسي",
-            متعدي: "transitif (membutuhkan objek)",
-            لازم: "intransitif (tidak membutuhkan objek)",
-            صحيح: "kata kerja tanpa huruf illat",
-            سالم: "kata kerja dengan huruf yang selamat",
+            ":Informasi Kata Kerja": "Informasi Kata Kerja",
+            ":Ditemukan Juga Pada Bab": "Ditemukan Juga Pada Bab",
         };
 
-        // Cari exact match
         if (localDict[text]) {
             return localDict[text];
         }
 
-        // Cari partial match
         for (const [key, value] of Object.entries(localDict)) {
             if (text.includes(key)) {
                 return value + " (sebagian)";
@@ -243,97 +217,77 @@ window.TranslationEnhanced = {
         return null;
     },
 
-    /**
-     * Clear cache
-     */
     clearCache: function () {
-        // Clear memory cache
         this.cache.clear();
-
-        // Clear localStorage
         const keys = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            if (key && key.startsWith("google_translate_")) {
+            if (key && key.startsWith("deepseek_translate_")) {
                 keys.push(key);
             }
         }
-
         keys.forEach((key) => localStorage.removeItem(key));
-        console.log(`🗑️ Cleared ${keys.length} translation cache entries`);
+        this.log(
+            `🗑️ Cleared ${keys.length} DeepSeek translation cache entries`
+        );
     },
 
-    /**
-     * Force retranslate all elements
-     */
     forceRetranslate: function () {
-        console.log("🔄 Force retranslating all elements...");
+        this.log("🔄 Force retranslating all elements with DeepSeek...");
         this.clearCache();
-
-        // Clear existing translations
         document.querySelectorAll(".translation-text").forEach((el) => {
             el.innerHTML = "";
         });
-
-        // Start translating again
         setTimeout(() => {
             this.translateAll();
         }, 500);
     },
 
-    /**
-     * Test translation dengan teks contoh
-     */
-    testTranslation: function () {
-        console.log("🧪 Testing translation...");
+    testAPI: function () {
+        this.log("🧪 Testing DeepSeek API...");
 
-        // Buat element test
-        const testDiv = document.createElement("div");
-        testDiv.innerHTML = `
-            <div class="test-element arabic-text" data-translate-arabic="السلام عليكم">السلام عليكم</div>
-            <div class="translation-text"></div>
-        `;
-
-        document.body.appendChild(testDiv);
-
-        // Translate
-        this.translateAll();
-
-        // Remove after 5 seconds
-        setTimeout(() => {
-            document.body.removeChild(testDiv);
-        }, 5000);
+        return fetch("/api/translate/check", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                ).content,
+            },
+        })
+            .then((r) => r.json())
+            .then((data) => {
+                this.log("API Test Result:", data);
+                return data;
+            })
+            .catch((error) => {
+                this.error("API Test Failed:", error);
+                throw error;
+            });
     },
 };
 
-// Auto-initialize saat DOM ready
+// Auto-initialize
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("🌐 Google Translate Enhanced loading...");
+    console.log("🌐 DeepSeek Translation Enhanced loading...");
 
-    // Tunggu sebentar untuk memastikan semua elemen dimuat
-    setTimeout(() => {
-        // Hapus cache terjemahan yang rusak
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith("google_translate_")) {
-                const value = localStorage.getItem(key);
-                // Jika nilai cache adalah teks Arab (mengandung karakter Arab)
-                if (/[\u0600-\u06FF]/.test(value)) {
-                    console.log(
-                        `🗑️ Removing invalid Google Translate cache: ${key}`
-                    );
-                    localStorage.removeItem(key);
-                }
-            }
-        }
-
-        // Tunggu sedikit kemudian terjemahkan semua
-        setTimeout(() => {
-            if (window.TranslationEnhanced) {
-                window.TranslationEnhanced.translateAll();
-            }
-        }, 500);
-    }, 1000);
+    // Test API first
+    if (window.TranslationEnhanced) {
+        window.TranslationEnhanced.testAPI()
+            .then(() => {
+                setTimeout(() => {
+                    window.TranslationEnhanced.translateAll();
+                }, 1000);
+            })
+            .catch(() => {
+                console.log(
+                    "API test failed, but continuing with translation attempt..."
+                );
+                setTimeout(() => {
+                    window.TranslationEnhanced.translateAll();
+                }, 1000);
+            });
+    }
 });
 
 // Export untuk penggunaan global
