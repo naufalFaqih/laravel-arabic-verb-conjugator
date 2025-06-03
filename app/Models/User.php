@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -22,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'last_login_at',
+        'is_admin',
     ];
 
     /**
@@ -43,8 +45,18 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'last_login_at' => 'datetime',
+        'is_admin' => 'boolean',
     ];
     
+     /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->is_admin === true;
+    }
+
+
     /**
      * Get all search histories for the user.
      */
@@ -52,4 +64,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(SearchHistory::class);
     }
+
+/**
+     * Get user's recent activity
+     */
+    public function getRecentActivityAttribute()
+    {
+        return $this->searchHistories()
+            ->latest()
+            ->take(5)
+            ->get();
+    }
+
+    /**
+     * Get user's search count
+     */
+    public function getSearchCountAttribute()
+    {
+        return $this->searchHistories()->count();
+    }
+
 }

@@ -7,6 +7,9 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\TranslationController;
+use App\Http\Controllers\AdminController;
+use App\Http\Middleware\AdminMiddleware;
+
 // Pastikan controller diimpor dengan benar
 use App\Http\Controllers\SearchHistoryController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -59,3 +62,17 @@ Route::post('chat',ChatController::class) -> withoutMiddleware(VerifyCsrfToken::
 Route::get('/test-translation', function () {
     return view('test-translation', ['title' => 'Test Translation']);
 });
+
+// Tambahkan routes untuk AJAX actions
+Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/users', [AdminController::class, 'users'])->name('users');
+    Route::get('/users/{id}', [AdminController::class, 'userDetail'])->name('user.detail');
+    Route::patch('/users/{id}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('user.toggle-admin');
+    Route::get('/monitoring', [AdminController::class, 'monitoring'])->name('monitoring');
+    
+    // AJAX routes
+    Route::post('/clear-cache', [AdminController::class, 'clearCache'])->name('clear-cache');
+    Route::post('/optimize', [AdminController::class, 'optimize'])->name('optimize');
+});
+

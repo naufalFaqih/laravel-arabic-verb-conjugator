@@ -146,25 +146,51 @@
 {{-- Hasil Pencarian --}}
 <div id="result" class="mt-6 p-4 bg-white rounded-lg shadow-md hidden">
   <h3 class="text-lg text-gray-700 text-right font-bold mb-3">Tashrif Lughowi / تصرف لغوي:</h3>
-    <div id="resultColumns" class="grid grid-cols-1 md:grid-cols-8 gap-4 text-center font-bold break-words overflow-hidden"></div>
-    <div id="dataWrapper" class="flex flex-row gap-4 mt-6 text-center font-bold ">  
-      <div id="amarMuakkadData" class="p-4 bg-gray-100 rounded-lg shadow-md w-full md:w-1/2">
+
+   <!-- Wrapper utama untuk scroll bersama -->
+  <div class="overflow-x-auto pb-2" id="mainScrollContainer">
+    <div class="min-w-max">
+
+      <!-- Container untuk resultColumns dengan horizontal scroll -->
+      <div class="pb-3 mb-6">
+        <div id="resultColumns" class="grid grid-cols-8 gap-4 text-center font-bold break-words min-w-max"></div>
       </div>
-      <div id="amarData" class="p-4 bg-gray-100 rounded-lg shadow-md w-full md:w-1/2">
-      </div>
-      <div id="mudhoriMuakkadData" class="p-4 bg-gray-100 rounded-lg shadow-md w-full md:w-1/2">
-      </div>
-      <div id="mudhoriMansubData" class="p-4 bg-gray-100 rounded-lg shadow-md w-full md:w-1/2">
-      </div>
-      <div id="mudhoriMajzumData" class="p-4 bg-gray-100 rounded-lg shadow-md w-full md:w-1/2">
-      </div>
-      <div id="mudhoriMalumData" class="p-4 bg-gray-100 rounded-lg shadow-md w-full md:w-1/2">
-      </div>
-      <div id="madhiMalumData" class="p-4 bg-gray-100 rounded-lg shadow-md w-full md:w-1/2">
-      </div>
-      <div id="domirData" class="p-4 bg-gray-100 rounded-lg shadow-md w-full md:w-1/2">
+
+        <!-- Container untuk dataWrapper dengan horizontal scroll -->
+        <div id="dataWrapper" class="flex flex-row gap-4 mt-6 text-center font-bold min-w-max">  
+            <div id="amarMuakkadData" class="p-4 bg-gray-100 rounded-lg shadow-md w-64 flex-shrink-0">
+            </div>
+            <div id="amarData" class="p-4 bg-gray-100 rounded-lg shadow-md w-64 flex-shrink-0">
+            </div>
+            <div id="mudhoriMuakkadData" class="p-4 bg-gray-100 rounded-lg shadow-md w-64 flex-shrink-0">
+            </div>
+            <div id="mudhoriMansubData" class="p-4 bg-gray-100 rounded-lg shadow-md w-64 flex-shrink-0">
+            </div>
+            <div id="mudhoriMajzumData" class="p-4 bg-gray-100 rounded-lg shadow-md w-64 flex-shrink-0">
+            </div>
+            <div id="mudhoriMalumData" class="p-4 bg-gray-100 rounded-lg shadow-md w-64 flex-shrink-0">
+            </div>
+            <div id="madhiMalumData" class="p-4 bg-gray-100 rounded-lg shadow-md w-64 flex-shrink-0">
+            </div>
+            <div id="domirData" class="p-4 bg-gray-100 rounded-lg shadow-md w-64 flex-shrink-0">
+            </div>
+        </div>
+
       </div>
     </div>
+
+  <!-- Indikator scroll untuk mobile -->
+  <div class="flex justify-center mt-4 md:hidden">
+    <div class="flex items-center text-xs text-gray-500 scroll-indicator">
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
+      </svg>
+      <span>Geser untuk melihat lebih banyak</span>
+      <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+      </svg>
+    </div>
+  </div>
 </div>
 
 
@@ -200,6 +226,115 @@
 @endauth
 
 <script>
+// Enhanced scroll behavior untuk hasil pencarian
+document.addEventListener('DOMContentLoaded', function() {
+    // Update untuk main scroll container
+    const mainScrollContainer = document.getElementById('mainScrollContainer');
+    
+    if (mainScrollContainer) {
+        let isScrolling = false;
+        
+        // Add scroll indicators
+        mainScrollContainer.addEventListener('scroll', function() {
+            if (!isScrolling) {
+                isScrolling = true;
+                
+                // Hide scroll indicator when scrolling
+                const indicator = document.querySelector('.scroll-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '0.3';
+                }
+                
+                setTimeout(() => {
+                    isScrolling = false;
+                    if (indicator) {
+                        indicator.style.opacity = '0.7';
+                    }
+                }, 150);
+            }
+        });
+        
+        // Touch scroll enhancement for mobile
+        let startX;
+        let scrollLeft;
+        
+        mainScrollContainer.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].pageX - mainScrollContainer.offsetLeft;
+            scrollLeft = mainScrollContainer.scrollLeft;
+        });
+        
+        mainScrollContainer.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            const x = e.touches[0].pageX - mainScrollContainer.offsetLeft;
+            const walk = (x - startX) * 2; // Scroll speed multiplier
+            mainScrollContainer.scrollLeft = scrollLeft - walk;
+        });
+    }
+    
+    // Auto-scroll to show more content on mobile
+    function autoShowScrollHint() {
+        if (window.innerWidth <= 768) {
+            const mainContainer = document.getElementById('mainScrollContainer');
+            if (mainContainer && mainContainer.scrollWidth > mainContainer.clientWidth) {
+                // Subtle hint scroll
+                setTimeout(() => {
+                    mainContainer.scrollLeft = 50;
+                    setTimeout(() => {
+                        mainContainer.scrollLeft = 0;
+                    }, 1000);
+                }, 2000);
+            }
+        }
+    }
+    
+    // Show scroll hint when result is displayed
+    const resultObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const result = document.getElementById('result');
+                if (result && !result.classList.contains('hidden')) {
+                    setTimeout(autoShowScrollHint, 500);
+                }
+            }
+        });
+    });
+    
+    const resultElement = document.getElementById('result');
+    if (resultElement) {
+        resultObserver.observe(resultElement, { attributes: true });
+    }
+});
+
+// Utility function untuk smooth scroll ke elemen tertentu
+window.scrollToColumn = function(columnIndex) {
+    const mainContainer = document.getElementById('mainScrollContainer');
+    if (mainContainer) {
+        const columnWidth = 256 + 16; // w-64 + gap-4
+        const scrollPosition = columnIndex * columnWidth;
+        mainContainer.scrollTo({
+            left: scrollPosition,
+            behavior: 'smooth'
+        });
+    }
+};
+
+// Sisa kode JavaScript yang lain tetap sama...
+// [JavaScript code lainnya tidak berubah]
+
+// Utility function untuk smooth scroll ke elemen tertentu
+window.scrollToColumn = function(columnIndex) {
+    const dataWrapper = document.getElementById('dataWrapper');
+    if (dataWrapper) {
+        const columnWidth = 256 + 16; // w-64 + gap-4
+        const scrollPosition = columnIndex * columnWidth;
+        dataWrapper.parentElement.scrollTo({
+            left: scrollPosition,
+            behavior: 'smooth'
+        });
+    }
+};
+
+
 // Translation Enhanced untuk DeepSeek API dengan debugging
 window.TranslationEnhanced = {
     cache: new Map(),

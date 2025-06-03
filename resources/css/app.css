@@ -105,3 +105,82 @@
     font-style: italic;
     color: #6b7280;
 }
+/* Tambahkan di bagian bawah file app.css */
+
+/* Custom scrollbar untuk hasil pencarian */
+#mainScrollContainer {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+#mainScrollContainer::-webkit-scrollbar {
+    height: 8px;
+}
+
+#mainScrollContainer::-webkit-scrollbar-track {
+    background: #f7fafc;
+    border-radius: 4px;
+}
+
+#mainScrollContainer::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 4px;
+}
+
+#mainScrollContainer::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+/* Smooth scrolling untuk mobile */
+#mainScrollContainer {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* Style untuk header kolom responsif */
+#resultColumns > div {
+    min-width: 120px;
+}
+
+/* Style untuk data wrapper items */
+#dataWrapper > div {
+    min-height: 200px;
+}
+
+/* Indikator visual untuk scroll area pada mobile */
+@media (max-width: 768px) {
+    #mainScrollContainer::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 20px;
+        width: 20px;
+        background: linear-gradient(
+            to left,
+            rgba(255, 255, 255, 0.8),
+            transparent
+        );
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    #result {
+        position: relative;
+    }
+}
+
+/* Animasi untuk scroll indicator */
+.scroll-indicator {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 1;
+    }
+}
