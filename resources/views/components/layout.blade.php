@@ -11,14 +11,14 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('img/logo am.png') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('img/logo am.png') }}">
     <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('img/logo am.png') }}">
-    
+
     {{-- Apple Touch Icon --}}
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('img/logo am.png') }}">
-    
+
     {{-- Android Chrome Icons --}}
     <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('img/logo am.png') }}">
     <link rel="icon" type="image/png" sizes="512x512" href="{{ asset('img/logo am.png') }}">
-    
+
     {{-- SVG Icon (modern browsers) --}}
     <link rel="icon" type="image/svg+xml" href="{{ asset('img/favicon.svg') }}">
 @auth
@@ -27,6 +27,10 @@
     <meta name="auth-check" content="false">
 @endauth
     @vite('resources/css/app.css')
+    @push('styles')
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="{{ asset('css/arabic-keyboard.css') }}" rel="stylesheet">
+@endpush
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -41,12 +45,12 @@
           border-left-color: #4f46e5;
           animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-        
+
         .text-right {
             text-align: right;
             direction: rtl;
@@ -64,12 +68,12 @@
                         <div class="flex-shrink-0 flex items-center">
                             <a href="{{ route('home') }}" class="text-xl font-bold text-indigo-600">Tashrif Arab</a>
                         </div>
-                        
+
                         <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                             <a href="{{ route('home') }}" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                 Beranda
                             </a>
-                            
+
                             @auth
                                 <a href="{{ route('history') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                     Riwayat
@@ -77,13 +81,13 @@
                             @endauth
                         </div>
                     </div>
-                    
+
                     <div class="flex items-center">
                         @auth
                             <div class="hidden md:flex items-center">
                                 <span class="text-sm text-gray-700 mr-4">{{ Auth::user()->name }}</span>
                             </div>
-                            
+
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="text-sm font-medium text-indigo-600 hover:text-indigo-700">
@@ -114,5 +118,10 @@
      @auth
         @vite(['resources/js/search-history.js'])
     @endauth
+    {{-- Add before closing body tag --}}
+        @push('scripts')
+    <script src="{{ asset('js/arabic-keyboard.js') }}"></script>
+    @endpush
+
 </body>
 </html>

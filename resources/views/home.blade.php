@@ -11,9 +11,9 @@
       @auth
         <div class="flex flex-col sm:flex-row items-center justify-between">
           <div class="mb-4 sm:mb-0">
-            <h2 class="text-xl font-bold text-gray-800">Selamat datang, {{ Auth::user()->name }}!</h2>
+            <h2 class="text-xl font-bold text-gray-800">Welcome, {{ Auth::user()->name }}!</h2>
           </div>
-          
+
           <div>
             <form method="POST" action="{{ route('logout') }}">
               @csrf
@@ -26,10 +26,10 @@
       @else
         <div class="flex flex-col sm:flex-row items-center justify-between">
           <div class="mb-4 sm:mb-0">
-            <h2 class="text-xl font-bold text-gray-800">Selamat datang di Tashrif Arab</h2>
-            <p class="text-sm text-gray-600">Silahkan login untuk mengakses fitur lengkap.</p>
+            <h2 class="text-xl font-bold text-gray-800">Welcome To Tashrif Arabic Verbs</h2>
+            <p class="text-sm text-gray-600">Please login to access full feature.</p>
           </div>
-          
+
           <div class="space-x-2">
             <a href="{{ route('login') }}" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 inline-block">
               Login
@@ -58,14 +58,14 @@
 
 
   <form id="searchForm" class="mt-4 p-4 bg-gray-100 rounded-lg shadow-md" data-purpose="search-verb">
-    <label for="verb" class="block text-sm font-bold text-gray-700 text-center mb-2">Masukkan Kata Kerja (Fiil):</label>
+    <label for="verb" class="block text-sm font-bold text-gray-700 text-center mb-2">Input Verb(Fiil):</label>
     <input
       type="text"
       id="verb"
       name="verb"
       class="block w-3/4 md:w-1/2 lg:w-1/3 mx-auto rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-md p-2 text-right font-bold"
-      placeholder="اشتغل, سَلّمَ, لعب :Contoh" 
-      pattern="^[\u0600-\u06FF\s]+$" 
+      placeholder="اشتغل, سَلّمَ, لعب :Contoh"
+      pattern="^[\u0600-\u06FF\s]+$"
       title="Hanya diperbolehkan karakter dalam bahasa Arab"
       required
     />
@@ -81,28 +81,28 @@
 {{-- Loading Screen --}}
 <div id="loading" class="mt-6 p-4 bg-gray-100 rounded-lg shadow-md hidden text-center">
   <div class="spinner mx-auto"></div>
-  <p class="text-lg font-medium text-gray-700">Memproses permintaan...</p>
+  <p class="text-lg font-medium text-gray-700">Process Requests...</p>
 </div>
 
 {{-- Ringkasan Pencarian --}}
 <div class="mt-6 p-4 bg-white rounded-lg shadow-md hidden" id="summary">
-  <h3 class="text-lg text-gray-700 font-bold mb-3 text-right">:ملخص البحث / Ringkasan Pencarian</h3>
-  
+  <h3 class="text-lg text-gray-700 font-bold mb-3 text-right">:ملخص البحث / Search Summary</h3>
+
   <div class="overflow-x-auto">
     <table class="min-w-full bg-white border border-gray-200">
       <thead>
         <tr>
           <th class="px-4 py-2 bg-gray-50 text-gray-700 text-center border border-gray-200">
             الماضي
-            <br/><span class="text-xs font-normal">Madhi (Lampau)</span>
+            <br/><span class="text-xs font-normal">Madhi (Past)</span>
           </th>
           <th class="px-4 py-2 bg-gray-50 text-gray-700 text-center border border-gray-200">
             المضارع
-            <br/><span class="text-xs font-normal">Mudhori (Saat ini)</span>
+            <br/><span class="text-xs font-normal">Mudhori (Present/Future)</span>
           </th>
           <th class="px-4 py-2 bg-gray-50 text-gray-700 text-center border border-gray-200">
             الأمر
-            <br/><span class="text-xs font-normal">Amar (Perintah)</span>
+            <br/><span class="text-xs font-normal">Amar (Command)</span>
           </th>
         </tr>
       </thead>
@@ -129,15 +129,15 @@
 {{-- Informasi Kata Kerja --}}
 <div id="verbInfo" class="mt-6 p-4 bg-gray-100 rounded-lg shadow-md hidden">
   <h3 class="text-md  text-gray-700 text-right">
-    <span class="arabic-text" data-translate-arabic="">:Informasi Kata Kerja</span>
+    <span class="arabic-text" data-translate-arabic="">:Verb Information</span>
     <div class="translation-text text-xs mt-1"></div>
   </h3>
   <div class="mt-2">
     <div id="verbInfoContent" class="text-lg text-gray-600 text-right font-bold arabic-text" data-translate-arabic="">-</div>
     <div class="translation-text text-xs mt-2 text-gray-600"></div>
   </div>
-  <h3 class="text-md text-gray-700 text-right mt-6">  
-    <span class="arabic-text" data-translate-arabic="">:Ditemukan Juga Pada Bab</span>
+  <h3 class="text-md text-gray-700 text-right mt-6">
+    <span class="arabic-text" data-translate-arabic="">:Also Found in Chapter</span>
     <div class="translation-text text-xs mt-1"></div>
   </h3>
   <ul id="suggestList" class="mt-4 mb-2 text-lg text-gray-600 text-right font-bold"></ul>
@@ -157,7 +157,7 @@
       </div>
 
         <!-- Container untuk dataWrapper dengan horizontal scroll -->
-        <div id="dataWrapper" class="flex flex-row gap-4 mt-6 text-center font-bold min-w-max">  
+        <div id="dataWrapper" class="flex flex-row gap-4 mt-6 text-center font-bold min-w-max">
             <div id="amarMuakkadData" class="p-4 bg-gray-100 rounded-lg shadow-md w-64 flex-shrink-0">
             </div>
             <div id="amarData" class="p-4 bg-gray-100 rounded-lg shadow-md w-64 flex-shrink-0">
@@ -185,7 +185,7 @@
       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
       </svg>
-      <span>Geser untuk melihat lebih banyak</span>
+      <span>Swipe to see more</span>
       <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
       </svg>
@@ -199,12 +199,12 @@
     <!-- Section riwayat pencarian (hanya untuk user yang login) -->
     <div class="mt-8 p-6 bg-gray-50 rounded-lg shadow-md border border-gray-100">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-gray-800">Riwayat Pencarian Terakhir</h3>
+        <h3 class="text-lg font-semibold text-gray-800">Recent Search History</h3>
         <a href="{{ route('history') }}" class="text-sm text-indigo-600 hover:text-indigo-800">
-          Lihat Semua
+          See All
         </a>
       </div>
-      
+
       @if(Schema::hasTable('search_histories') && Auth::user()->searchHistories()->count() > 0)
         <div class="divide-y divide-gray-100">
           @foreach(Auth::user()->searchHistories()->latest()->take(5)->get() as $history)
@@ -214,13 +214,13 @@
                 <div class="text-xs text-gray-500">{{ $history->created_at->diffForHumans() }}</div>
               </div>
               <a href="/?query={{ urlencode($history->query) }}" class="ml-4 text-indigo-600 hover:text-indigo-900 text-sm">
-                Cari lagi
+                Search Again
               </a>
             </div>
           @endforeach
         </div>
       @else
-        <p class="text-gray-500 text-sm">Belum ada riwayat pencarian.</p>
+        <p class="text-gray-500 text-sm">No Search History Yet.</p>
       @endif
     </div>
 @endauth
@@ -230,21 +230,21 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Update untuk main scroll container
     const mainScrollContainer = document.getElementById('mainScrollContainer');
-    
+
     if (mainScrollContainer) {
         let isScrolling = false;
-        
+
         // Add scroll indicators
         mainScrollContainer.addEventListener('scroll', function() {
             if (!isScrolling) {
                 isScrolling = true;
-                
+
                 // Hide scroll indicator when scrolling
                 const indicator = document.querySelector('.scroll-indicator');
                 if (indicator) {
                     indicator.style.opacity = '0.3';
                 }
-                
+
                 setTimeout(() => {
                     isScrolling = false;
                     if (indicator) {
@@ -253,16 +253,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 150);
             }
         });
-        
+
         // Touch scroll enhancement for mobile
         let startX;
         let scrollLeft;
-        
+
         mainScrollContainer.addEventListener('touchstart', function(e) {
             startX = e.touches[0].pageX - mainScrollContainer.offsetLeft;
             scrollLeft = mainScrollContainer.scrollLeft;
         });
-        
+
         mainScrollContainer.addEventListener('touchmove', function(e) {
             e.preventDefault();
             const x = e.touches[0].pageX - mainScrollContainer.offsetLeft;
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
             mainScrollContainer.scrollLeft = scrollLeft - walk;
         });
     }
-    
+
     // Auto-scroll to show more content on mobile
     function autoShowScrollHint() {
         if (window.innerWidth <= 768) {
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
+
     // Show scroll hint when result is displayed
     const resultObserver = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     const resultElement = document.getElementById('result');
     if (resultElement) {
         resultObserver.observe(resultElement, { attributes: true });
@@ -484,7 +484,7 @@ window.TranslationEnhanced = {
         })
         .then((response) => {
             this.log(`API Response status: ${response.status}`);
-            
+
             if (!response.ok) {
                 throw new Error(`API error: ${response.status} ${response.statusText}`);
             }
@@ -492,7 +492,7 @@ window.TranslationEnhanced = {
         })
         .then((data) => {
             this.log("API Response data:", data);
-            
+
             if (data.success && data.translation) {
                 return data.translation;
             }
@@ -507,7 +507,7 @@ window.TranslationEnhanced = {
     getLocalTranslation: function (text) {
         const localDict = {
             'الماضي': "masa lampau",
-            'المضارع': "masa sekarang", 
+            'المضارع': "masa sekarang",
             'الأمر': "perintah",
             'كَتَبَ': "menulis (dia lk)",
             'يَكْتُبُ': "sedang menulis (dia lk)",
@@ -555,7 +555,7 @@ window.TranslationEnhanced = {
 
     testAPI: function() {
         this.log("🧪 Testing DeepSeek API...");
-        
+
         return fetch('/api/translate/check', {
             method: 'POST',
             headers: {
@@ -593,7 +593,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         }
-        
+
         // Tunggu sedikit kemudian terjemahkan semua
         setTimeout(() => {
             if (window.TranslationEnhanced) {
@@ -601,16 +601,16 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }, 500);
     }, 1000);
-    
+
     // Observer untuk menerjemahkan elemen yang baru ditambahkan
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.type === 'childList') {
                 mutation.addedNodes.forEach(function(node) {
                     if (node.nodeType === 1) { // Element node
-                        const elementsToTranslate = node.querySelectorAll ? 
+                        const elementsToTranslate = node.querySelectorAll ?
                             node.querySelectorAll('[data-translate-arabic]') : [];
-                        
+
                         if (elementsToTranslate.length > 0 && window.TranslationEnhanced) {
                             setTimeout(() => {
                                 window.TranslationEnhanced.translateAll();
@@ -621,7 +621,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
-    
+
     // Observasi perubahan DOM
     observer.observe(document.body, { childList: true, subtree: true });
 });
@@ -640,7 +640,7 @@ window.debugDeepSeek = {
             return Promise.reject("TranslationEnhanced not available");
         }
     },
-    
+
     testTranslation: (text = "السلام عليكم") => {
         console.log(`🔤 Testing translation for: ${text}`);
         if (window.TranslationEnhanced && window.TranslationEnhanced.callTranslationAPI) {
@@ -650,7 +650,7 @@ window.debugDeepSeek = {
             return Promise.reject("TranslationEnhanced not available");
         }
     },
-    
+
     checkElements: () => {
         const elements = document.querySelectorAll('[data-translate-arabic]');
         console.log(`Found ${elements.length} elements with data-translate-arabic:`);
@@ -663,7 +663,7 @@ window.debugDeepSeek = {
         });
         return elements;
     },
-    
+
     forceTranslate: () => {
         if (window.TranslationEnhanced && window.TranslationEnhanced.forceRetranslate) {
             window.TranslationEnhanced.forceRetranslate();
@@ -671,7 +671,7 @@ window.debugDeepSeek = {
             console.error("TranslationEnhanced not found or forceRetranslate method missing");
         }
     },
-    
+
     clearCache: () => {
         if (window.TranslationEnhanced && window.TranslationEnhanced.clearCache) {
             window.TranslationEnhanced.clearCache();
@@ -679,16 +679,16 @@ window.debugDeepSeek = {
             console.error("TranslationEnhanced not found or clearCache method missing");
         }
     },
-    
+
     checkStatus: () => {
         console.log("🔍 Checking TranslationEnhanced status:");
         console.log("window.TranslationEnhanced:", window.TranslationEnhanced);
         console.log("window.TranslationAPI:", window.TranslationAPI);
-        
+
         if (window.TranslationEnhanced) {
             console.log("Available methods:", Object.keys(window.TranslationEnhanced));
         }
-        
+
         return {
             TranslationEnhanced: !!window.TranslationEnhanced,
             TranslationAPI: !!window.TranslationAPI,

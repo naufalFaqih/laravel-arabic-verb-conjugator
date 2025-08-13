@@ -17,7 +17,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 // ...kode lainnya...
 
 Route::get('/', function () {
-    return view('home', ['title' => 'تصرف الفعل - Tashrif Kata Kerja Bahasa Arab']);
+    return view('home', ['title' => 'تصرف الفعل - Tashrif Arabic Verbs']);
 })->name('home');
 
 
@@ -26,7 +26,7 @@ Route::middleware('guest')->group(function () {
     // Login
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
-    
+
     // Register
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
@@ -70,7 +70,7 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     Route::get('/users/{id}', [AdminController::class, 'userDetail'])->name('user.detail');
     Route::patch('/users/{id}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('user.toggle-admin');
     Route::get('/monitoring', [AdminController::class, 'monitoring'])->name('monitoring');
-    
+
     // AJAX routes
     Route::post('/clear-cache', [AdminController::class, 'clearCache'])->name('clear-cache');
     Route::post('/optimize', [AdminController::class, 'optimize'])->name('optimize');

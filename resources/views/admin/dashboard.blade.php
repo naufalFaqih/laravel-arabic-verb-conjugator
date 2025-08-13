@@ -5,7 +5,7 @@
         <!-- Header -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p class="text-gray-600">Monitor aplikasi dan aktivitas pengguna</p>
+            <p class="text-gray-600">Monitor applications and user activity</p>
         </div>
 
         <!-- Navigation Tabs -->
@@ -15,7 +15,7 @@
                     Dashboard
                 </a>
                 <a href="{{ route('admin.users') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
-                    Kelola User
+                    Manage User
                 </a>
                 <a href="{{ route('admin.monitoring') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
                     Monitoring
@@ -39,7 +39,7 @@
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Total Users</p>
                         <p class="text-2xl font-bold text-gray-900">{{ number_format($stats['total_users']) }}</p>
-                        <p class="text-xs text-gray-500">{{ $stats['users_today'] }} hari ini</p>
+                        <p class="text-xs text-gray-500">{{ $stats['users_today'] }} Today</p>
                     </div>
                 </div>
             </div>
@@ -55,7 +55,7 @@
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Admin Users</p>
                         <p class="text-2xl font-bold text-gray-900">{{ number_format($stats['admin_users']) }}</p>
-                        <p class="text-xs text-gray-500">dari {{ $stats['total_users'] }} users</p>
+                        <p class="text-xs text-gray-500">from {{ $stats['total_users'] }} users</p>
                     </div>
                 </div>
             </div>
@@ -69,9 +69,9 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Total Pencarian</p>
+                        <p class="text-sm font-medium text-gray-600">Total Searches</p>
                         <p class="text-2xl font-bold text-gray-900">{{ number_format($stats['total_searches']) }}</p>
-                        <p class="text-xs text-gray-500">{{ $stats['searches_today'] }} hari ini</p>
+                        <p class="text-xs text-gray-500">{{ $stats['searches_today'] }} today</p>
                     </div>
                 </div>
             </div>
@@ -85,9 +85,9 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">User Aktif Hari Ini</p>
+                        <p class="text-sm font-medium text-gray-600">Active Users Today</p>
                         <p class="text-2xl font-bold text-gray-900">{{ number_format($stats['active_users_today']) }}</p>
-                        <p class="text-xs text-gray-500">melakukan pencarian</p>
+                        <p class="text-xs text-gray-500">Searching</p>
                     </div>
                 </div>
             </div>
@@ -98,7 +98,7 @@
             <!-- Recent Users -->
             <div class="bg-white rounded-lg shadow">
                 <div class="p-6 border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">User Terbaru</h3>
+                    <h3 class="text-lg font-medium text-gray-900">Recent Users</h3>
                 </div>
                 <div class="p-6">
                     <div class="space-y-4">
@@ -122,7 +122,7 @@
                                             Admin
                                         </span>
                                     @endif
-                                    <p class="text-xs text-gray-500">{{ $user->search_histories_count }} pencarian</p>
+                                    <p class="text-xs text-gray-500">{{ $user->search_histories_count }} Searching</p>
                                 </div>
                             </div>
                         @empty
@@ -140,7 +140,7 @@
             <!-- Recent Searches -->
             <div class="bg-white rounded-lg shadow">
                 <div class="p-6 border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Pencarian Terbaru</h3>
+                    <h3 class="text-lg font-medium text-gray-900">Recent Searches</h3>
                 </div>
                 <div class="p-6">
                     <div class="space-y-4">
@@ -149,7 +149,7 @@
                                 <div class="flex-1">
                                     <p class="text-sm font-medium text-gray-900 text-right">{{ $search->query }}</p>
                                     <p class="text-xs text-gray-500">
-                                        oleh {{ $search->user->name ?? 'Guest' }} • {{ $search->created_at->diffForHumans() }}
+                                        by {{ $search->user->name ?? 'Guest' }} • {{ $search->created_at->diffForHumans() }}
                                     </p>
                                 </div>
                             </div>
