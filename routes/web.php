@@ -17,10 +17,12 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 // ...kode lainnya...
 
 Route::get('/', function () {
-    return view('home', ['title' => 'تصرف الفعل - Tashrif Arabic Verbs']);
+    return view('landing', ['title' => 'تصرف الفعل - Tashrif Arabic Verbs']);
+})->name('landing');
+
+Route::get('/search', function (){
+    return view('home', ['title' => 'ArabicMorph - Arabic Conjugation Tool']);
 })->name('home');
-
-
 // Authentication Routes - hanya bisa diakses jika tidak login (guest)
 Route::middleware('guest')->group(function () {
     // Login

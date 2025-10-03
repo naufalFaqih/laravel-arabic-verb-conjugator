@@ -59,6 +59,8 @@
 </head>
 
 <body class="h-full">
+        <!-- Navigation (tampil di semua halaman KECUALI landing page) -->
+
 <!--
   <div class="min-h-screen flex flex-col">
         <nav class="bg-white shadow-sm">
