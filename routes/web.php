@@ -5,9 +5,7 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ChatController;
-use App\Http\Controllers\SearchHistoryController;
 use App\Http\Controllers\TranslationController;
-use App\Http\Controllers\VerbController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
@@ -41,30 +39,32 @@ Route::middleware('guest')->group(function () {
 |--------------------------------------------------------------------------
 | Authenticated user routes
 |--------------------------------------------------------------------------
+| Search history is fully Livewire-driven (App\Livewire\History\Index +
+| App\Livewire\Verb\Search auto-saves on search). No controller endpoints
+| are required.
 */
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    Route::get('/history', [SearchHistoryController::class, 'index'])->name('history');
-    Route::post('/history', [SearchHistoryController::class, 'store'])->name('history.store');
-    Route::delete('/history/{id}', [SearchHistoryController::class, 'destroy'])->name('history.destroy');
-    Route::delete('/history', [SearchHistoryController::class, 'destroyAll'])->name('history.destroy.all');
+    Route::get('/history', function () {
+        return view('history', ['title' => 'Riwayat Pencarian']);
+    })->name('history');
 });
 
 /*
 |--------------------------------------------------------------------------
 | API: Verb conjugation (Qutrub)
 |--------------------------------------------------------------------------
+| Kept for backward compatibility (older clients / debugging). Livewire
+| Verb\Search component talks to VerbSearchService directly.
 */
 Route::get('/api/search-verb', [ApiController::class, 'searchVerb'])->name('api.searchVerb');
-Route::get('/search-verb', [VerbController::class, 'search'])->name('searchVerb');
 
 /*
 |--------------------------------------------------------------------------
 | API: Translation (DeepSeek)
 |--------------------------------------------------------------------------
-| Canonical endpoints under /api/translate*. Legacy /translation/* prefix
-| has been removed in Task 3 (refactor).
+| Used by client-side TranslationEnhanced (resources/js/translation-enhanced.js).
 */
 Route::post('/api/translate', [TranslationController::class, 'translate'])->name('api.translate');
 Route::post('/api/translate/check', [TranslationController::class, 'checkApi'])->name('api.translate.check');
@@ -81,6 +81,7 @@ Route::post('chat', ChatController::class)->withoutMiddleware(VerifyCsrfToken::c
 |--------------------------------------------------------------------------
 | Admin
 |--------------------------------------------------------------------------
+| Dashboard is Livewire-driven. Other admin pages remain controller-based.
 */
 Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -89,21 +90,8 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     Route::patch('/users/{id}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('user.toggle-admin');
     Route::get('/monitoring', [AdminController::class, 'monitoring'])->name('monitoring');
 
+    // Legacy AJAX endpoints — now also exposed via Livewire wire:click in
+    // App\Livewire\Admin\Dashboard (Refresh / Clear Cache / Optimize).
     Route::post('/clear-cache', [AdminController::class, 'clearCache'])->name('clear-cache');
     Route::post('/optimize', [AdminController::class, 'optimize'])->name('optimize');
 });
-
-/*
-|--------------------------------------------------------------------------
-| Dev / smoke test (local only)
-|--------------------------------------------------------------------------
-*/
-if (app()->environment('local')) {
-    Route::get('/dev/livewire-check', function () {
-        return view('dev.livewire-check', ['title' => 'Livewire Smoke Test']);
-    })->name('dev.livewire-check');
-
-    Route::get('/test-translation', function () {
-        return view('test-translation', ['title' => 'Test Translation']);
-    });
-}
