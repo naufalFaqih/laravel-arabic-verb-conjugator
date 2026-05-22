@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BatchTranslateRequest;
+use App\Http\Requests\TranslateRequest;
 use App\Services\DeepSeekTranslator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,19 +22,14 @@ class TranslationController extends Controller
     /**
      * POST /api/translate
      */
-    public function translate(Request $request): JsonResponse
+    public function translate(TranslateRequest $request): JsonResponse
     {
-        $request->validate([
-            'text' => 'required|string',
-            'source' => 'nullable|string|in:ar,id,en',
-            'target' => 'nullable|string|in:ar,id,en',
-            'force' => 'nullable|boolean',
-        ]);
+        $validated = $request->validated();
 
-        $text = (string) $request->input('text');
-        $source = (string) $request->input('source', 'ar');
-        $target = (string) $request->input('target', 'id');
-        $force = (bool) $request->boolean('force');
+        $text = (string) ($validated['text'] ?? '');
+        $source = (string) ($validated['source'] ?? 'ar');
+        $target = (string) ($validated['target'] ?? 'id');
+        $force = (bool) ($validated['force'] ?? false);
 
         Log::info('Translation request', compact('text', 'source', 'target', 'force'));
 
@@ -52,26 +49,23 @@ class TranslationController extends Controller
     /**
      * POST /api/translate/batch
      */
-    public function batchTranslate(Request $request): JsonResponse
+    public function batchTranslate(BatchTranslateRequest $request): JsonResponse
     {
-        $request->validate([
-            'texts' => 'required|array',
-            'texts.*' => 'required|string',
-            'source' => 'nullable|string|in:ar,id,en',
-            'target' => 'nullable|string|in:ar,id,en',
-        ]);
+        $validated = $request->validated();
+        $source = (string) ($validated['source'] ?? 'ar');
+        $target = (string) ($validated['target'] ?? 'id');
 
         $results = $this->translator->batch(
-            (array) $request->input('texts'),
-            (string) $request->input('source', 'ar'),
-            (string) $request->input('target', 'id'),
+            (array) $validated['texts'],
+            $source,
+            $target,
         );
 
         return response()->json([
             'success' => true,
             'results' => $results,
-            'source' => $request->input('source', 'ar'),
-            'target' => $request->input('target', 'id'),
+            'source' => $source,
+            'target' => $target,
         ]);
     }
 }
