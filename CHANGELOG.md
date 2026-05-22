@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-05 — Tashrif translation fix + Arabic on-screen keyboard
+
+### Fixed
+- DeepSeek-translated cells under "Tashrif Lughowi" returned poor results
+  for the 14×8 conjugation grid; translation has been removed for that
+  block. Translations on the summary table, verb info, and suggestion list
+  are preserved.
+
+### Added
+- On-screen Arabic keyboard (`resources/views/components/arabic-keyboard.blade.php`,
+  styling in `resources/css/app.css`). Pops up automatically for inputs
+  carrying class `arabic-input`; can be dismissed via the close button or
+  by clicking outside. Includes harakat (fathah/dhammah/kasrah/syaddah/
+  sukun and tanwin variants) plus space and backspace.
+
+### Removed (dead code)
+- `app/Services/GoogleTranslateService.php` — superseded by
+  `App\Services\DeepSeekTranslator`.
+- `stichoza/google-translate-php` Composer dependency. Run
+  `composer update` after pulling.
+- Default Laravel `resources/views/welcome.blade.php`.
+- Stub `resources/views/about.blade.php` and the broken `/about` link in
+  the mobile navbar.
+- Broken `asset('css/arabic-keyboard.css')` and `asset('js/arabic-keyboard.js')`
+  references plus the duplicate Alpine CDN script. Inline `<style>` block
+  in `layout.blade.php` was consolidated into `resources/css/app.css`.
+
 ## 2026-05 — Livewire 3 incremental refactor
 
 Migrated the interactive surface area of the application from inline-JS
