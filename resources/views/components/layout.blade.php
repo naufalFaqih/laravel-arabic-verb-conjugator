@@ -118,9 +118,6 @@
       </div>
     </main>
   </div>
-     @auth
-        @vite(['resources/js/search-history.js'])
-    @endauth
     {{-- Add before closing body tag --}}
         @push('scripts')
     <script src="{{ asset('js/arabic-keyboard.js') }}"></script>

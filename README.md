@@ -1,552 +1,198 @@
-# Tashrif Arab - Arabic Verb Conjugation App with AI Translation
+# Tashrif Arab — Arabic Verb Conjugation App with AI Translation
 
 <p align="center">
   <img src="public/img/logo am.png" width="200" alt="ArabicMorph Logo">
 </p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel 11 + **Livewire 3** application that helps learners explore Arabic
+verb conjugation (Tashrif Lughowi) and provides AI-powered Arabic →
+Indonesian translation via the DeepSeek API.
 
-This Laravel 11 project is a comprehensive web application designed to help users with Arabic verb conjugation (Tashrif) and intelligent translation. It combines traditional Arabic grammar learning with modern AI-powered translation capabilities, providing an enhanced learning experience for Arabic language students and enthusiasts.
+## ✨ Features
 
-## ✨ Key Features
+### Verb conjugation
+- Search Arabic verbs and view a complete tashrif table (8 conjugation
+  categories × 14 pronouns).
+- Madhi / Mudhori / Amar summary block.
+- Verb metadata (transitive vs. intransitive, trilateral, etc.).
+- Suggested chapters / related forms.
+- Powered by the public [Qutrub API](http://qutrub.arabeyes.org/api).
 
-### 🔍 **Arabic Verb Conjugation**
+### AI translation
+- DeepSeek-driven Arabic → Indonesian translation with prompt tuning for
+  classical Arabic verbs.
+- Permissive validation, automatic retry, and a curated local dictionary as
+  fallback when the API is unreachable.
+- Two-layer caching: Laravel `Cache` on the server + browser `localStorage`.
 
--   **Advanced Verb Search**: Search for Arabic verbs with comprehensive conjugation results
--   **Complete Conjugation Display**: Shows past tense (madhi), present tense (mudhori), jussive (majzum), subjunctive (mansub), imperative (amar), and emphasized forms
--   **External API Integration**: Utilizes `http://qutrub.arabeyes.org/api` for accurate verb conjugation data
--   **Verb Classification**: Displays grammatical information including verb type (trilateral, transitive, etc.)
--   **Comprehensive Data Display**: 8 different conjugation categories with pronoun mappings
--   **Smart Search Summary**: Quick overview of madhi, mudhori, and amar forms
+### Auth & history
+- Email/password registration + login (Laravel built-in auth).
+- `last_login_at` tracking.
+- Personal **search history** with delete-one / delete-all actions.
 
-### 🤖 **AI-Powered Translation System**
+### Admin panel
+- Dashboard with user/search statistics, recent activity, and system health.
+- User management page (list, detail, toggle admin).
+- Monitoring page using Telescope-backed metrics.
+- Inline buttons to clear application cache and run optimisation.
 
--   **DeepSeek API Integration**: Advanced AI translation using DeepSeek language model with API key `sk-86cd11de25dc45a3920647b89c398c75`
--   **Real-time Translation**: Automatic translation of Arabic text to Indonesian
--   **Smart Fallback System**: Comprehensive local dictionary for common Arabic verbs and grammar terms
--   **Contextual Translation**: Intelligent pattern recognition for different verb forms
--   **Grammar-Aware Translation**: Specialized translation for Arabic grammatical terms and verb conjugations
--   **Enhanced Caching**: Multi-layer caching system with memory cache and localStorage
--   **Translation Validation**: Robust validation to ensure translation quality
--   **Batch Translation**: Support for translating multiple texts simultaneously
--   **Force Retranslation**: Ability to bypass cache and get fresh translations
+## 🏗️ Architecture (after Livewire refactor)
 
-### 🔐 **User Authentication & Management**
+```
+app/
+├── Http/
+│   ├── Controllers/
+│   │   ├── AdminController.php          (users / monitoring / userDetail)
+│   │   ├── ApiController.php            (thin wrapper → VerbSearchService)
+│   │   ├── Auth/                        (Login, Register)
+│   │   ├── ChatController.php           (DeepSeek chat proxy)
+│   │   └── TranslationController.php    (thin wrapper → DeepSeekTranslator)
+│   └── Requests/                        (Form Requests for validation)
+├── Livewire/
+│   ├── Admin/Dashboard.php              ← /admin/dashboard
+│   ├── History/Index.php                ← /history
+│   └── Verb/
+│       ├── RecentHistory.php            ← partial on home page
+│       └── Search.php                   ← /search & home page
+├── Models/
+└── Services/
+    ├── AdminStatsService.php
+    ├── DeepSeekTranslator.php
+    ├── SearchHistoryService.php
+    └── VerbSearchService.php
 
--   **User Registration & Login**: Secure authentication system with robust password policies
--   **Session Management**: Persistent user sessions with login tracking
--   **Strong Password Policy**: Enforces minimum 8 characters with mixed case, numbers, and symbols
--   **Last Login Tracking**: Track user's last login time for security monitoring
--   **Admin Panel**: Complete admin dashboard for user management
-
-### 📚 **Search History & Analytics**
-
--   **Personal Search History**: Authenticated users can save and revisit their search queries
--   **History Management**: View, re-search, and delete individual entries or clear all history
--   **Search Analytics**: Track learning progress and frequently searched verbs
--   **Smart Duplicate Prevention**: Prevent duplicate saves within 1-minute window
--   **Recent History Display**: Show last 5 searches on homepage
--   **Export/Import**: Manage search history efficiently
-
-### 🎨 **Modern User Interface**
-
--   **Responsive Design**: Built with Blade templates and Tailwind CSS
--   **Arabic Text Support**: Proper RTL (Right-to-Left) text rendering
--   **Interactive Elements**: Dynamic search results with smooth animations
--   **Loading States**: Visual feedback during API calls and data processing
--   **Mobile-First Design**: Optimized for mobile devices with touch-friendly controls
--   **Horizontal Scrolling**: Responsive table layout with smooth horizontal scrolling
--   **Custom Scrollbars**: Styled scrollbars for better user experience
--   **Scroll Indicators**: Visual hints for scrollable content on mobile
-
-### 🔧 **Advanced Technical Features**
-
--   **Intelligent Caching System**: Multi-layer caching for translations and search results
--   **Error Handling**: Comprehensive error handling and logging
--   **API Rate Limiting**: Smart request management for external APIs
--   **Performance Optimization**: Optimized database queries and asset loading
--   **Debug Tools**: Built-in debugging tools for translation testing
--   **Translation Debug Mode**: Console tools for testing translation functionality
--   **Cache Management**: Automatic cache cleanup and optimization
-
-### 👨‍💼 **Admin Features**
-
--   **User Management**: Complete user management with admin controls
--   **User Statistics**: Track user activity and search patterns
--   **Admin Dashboard**: Comprehensive overview of system statistics
--   **User Detail Views**: Detailed user information and search history
--   **Admin Toggle**: Promote/demote users to admin status
--   **System Monitoring**: Monitor system health and performance
--   **Telescope Integration**: Laravel Telescope for debugging and monitoring
+resources/
+├── js/
+│   ├── app.js                           (entry: bootstrap + translation-enhanced)
+│   ├── arabic-keyboard.js               (Arabic on-screen keyboard)
+│   ├── bootstrap.js                     (Axios + CSRF)
+│   └── translation-enhanced.js          (client-side translate cache)
+└── views/
+    ├── components/{layout,navbar,header,nav-link}.blade.php
+    ├── livewire/
+    │   ├── admin/dashboard.blade.php
+    │   ├── history/index.blade.php
+    │   └── verb/{search,recent-history}.blade.php
+    ├── admin/{dashboard,users,user-detail,monitoring}.blade.php
+    └── auth/{login,register}.blade.php
+```
 
 ## 🚀 Installation
 
 ### Prerequisites
 
--   PHP 8.1 or higher
--   Composer
--   Node.js and npm
--   MySQL or SQLite database
+- PHP 8.2+
+- Composer
+- Node.js 18+ and npm
+- MySQL or SQLite database
 
-### Setup Steps
-
-1.  **Clone the repository:**
-
-    ```bash
-    git clone <repository_url>
-    cd latihanLaravel11
-    ```
-
-2.  **Install Composer dependencies:**
-
-    ```bash
-    composer install
-    ```
-
-3.  **Install Node.js dependencies:**
-
-    ```bash
-    npm install
-    ```
-
-4.  **Environment Configuration:**
-
-    ```bash
-    cp .env.example .env
-    php artisan key:generate
-    ```
-
-5.  **Configure your `.env` file:**
-
-    ```env
-    # Database Configuration
-    DB_CONNECTION=mysql
-    DB_HOST=127.0.0.1
-    DB_PORT=3306
-    DB_DATABASE=your_database_name
-    DB_USERNAME=your_username
-    DB_PASSWORD=your_password
-
-    # DeepSeek API Configuration (for AI Translation)
-    DEEPSEEK_API_KEY=sk-86cd11de25dc45a3920647b89c398c75
-    DEEPSEEK_API_URL=https://api.deepseek.com/v1/chat/completions
-
-    # External Arabic API
-    QUTRUB_API_URL=http://qutrub.arabeyes.org/api
-
-    # Chat API Configuration
-    CHAT_API_KEY=sk-86cd11de25dc45a3920647b89c398c75
-    ```
-
-6.  **Database Setup:**
-
-    ```bash
-    php artisan migrate
-    php artisan db:seed  # Optional: Creates test user
-    ```
-
-7.  **Asset Compilation:**
-
-    ```bash
-    npm run dev
-    # For production: npm run build
-    ```
-
-8.  **Start Development Server:**
-    ```bash
-    php artisan serve
-    ```
-
-The application will be available at `http://127.0.0.1:8000`
-
-## 📖 Usage Guide
-
-### 🔍 **Basic Search**
-
-1. Navigate to the homepage
-2. Enter an Arabic verb (e.g., `ضرب`, `أكل`, `نظر`, `نَظَرَ`) in the search bar
-3. Click "Tashrif" to get comprehensive conjugation results
-4. View translations automatically generated for each verb form
-5. Use horizontal scroll on mobile devices to view all conjugation forms
-
-### 🤖 **AI Translation Features**
-
--   **Automatic Translation**: All Arabic text is automatically translated to Indonesian using DeepSeek API
--   **Force Retranslation**: Use browser console commands to force fresh translations
--   **Translation History**: Cached translations for improved performance
--   **Local Fallback**: Comprehensive local dictionary when API is unavailable
--   **Grammar-Aware**: Specialized translations for Arabic grammatical terms
-
-### 👤 **User Account Features**
-
-1. **Register**: Create an account with strong password requirements
-2. **Login**: Access personal features and search history
-3. **History Management**: View and manage your search history
-4. **Profile**: Track your learning progress
-5. **Search Tracking**: Automatic saving of search queries for registered users
-
-### 📱 **Mobile Experience**
-
--   **Touch-Friendly**: Optimized touch controls for mobile devices
--   **Horizontal Scrolling**: Smooth scrolling for conjugation tables
--   **Responsive Layout**: Adapts to different screen sizes
--   **Visual Indicators**: Clear indicators for scrollable content
-
-### 🔧 **Advanced Features**
-
--   **API Testing**: Built-in tools for testing translation API functionality
--   **Cache Management**: Automatic cache optimization for better performance
--   **Debug Mode**: Console commands for advanced debugging
--   **Translation Testing**: Test specific translations via browser console
-
-### 👨‍💼 **Admin Features** (For Admin Users)
-
-1. **Access Admin Panel**: Navigate to `/admin/dashboard`
-2. **User Management**: View and manage all users
-3. **Search Monitoring**: Monitor user search activities
-4. **System Health**: Check system performance and status
-5. **User Promotion**: Promote users to admin status
-
-## 🏗️ Project Architecture
-
-### **Core Controllers**
-
--   [`ApiController.php`](app/Http/Controllers/ApiController.php): External Arabic API integration
--   [`TranslationController.php`](app/Http/Controllers/TranslationController.php): AI translation system with DeepSeek API
--   [`SearchHistoryController.php`](app/Http/Controllers/SearchHistoryController.php): User search history management
--   [`Auth/LoginController.php`](app/Http/Controllers/Auth/LoginController.php) & [`Auth/RegisterController.php`](app/Http/Controllers/Auth/RegisterController.php): Authentication
--   [`AdminController.php`](app/Http/Controllers/AdminController.php): Admin panel functionality
--   [`ChatController.php`](app/Http/Controllers/ChatController.php): AI chat integration
-
-### **Models & Database**
-
--   [`User.php`](app/Models/User.php): User management with search history relationships and admin features
--   [`SearchHistory.php`](app/Models/SearchHistory.php): Search query storage and retrieval
--   Database migrations for users, sessions, search history, and admin features
-
-### **Frontend Assets**
-
--   [`resources/js/search.js`](resources/js/search.js): Dynamic search functionality with responsive design
--   [`resources/js/translation.js`](resources/js/translation.js): AI translation integration with DeepSeek API
--   [`resources/js/search-history.js`](resources/js/search-history.js): History management
--   [`resources/js/translation-debug.js`](resources/js/translation-debug.js): Debug tools for translation testing
--   [`resources/css/app.css`](resources/css/app.css): Tailwind CSS with Arabic text support and responsive scrolling
-
-### **API Integration**
-
--   **Qutrub API**: Arabic verb conjugation data from `http://qutrub.arabeyes.org/api`
--   **DeepSeek API**: AI-powered translation services using `https://api.deepseek.com/v1/chat/completions`
--   **Local Dictionary**: Comprehensive fallback translation system
--   **Chat API**: AI chat functionality using DeepSeek
-
-### **Views & Components**
-
--   [`resources/views/home.blade.php`](resources/views/home.blade.php): Main search interface with responsive design
--   [`resources/views/history.blade.php`](resources/views/history.blade.php): Search history management
--   [`resources/views/admin/`](resources/views/admin/): Admin panel views
--   [`resources/views/components/layout.blade.php`](resources/views/components/layout.blade.php): Main layout component
--   [`resources/views/auth/`](resources/views/auth/): Authentication views
-
-## 🔧 Configuration
-
-### **Translation API Setup**
-
-```env
-# DeepSeek API for AI Translation
-DEEPSEEK_API_KEY=sk-86cd11de25dc45a3920647b89c398c75
-DEEPSEEK_API_URL=https://api.deepseek.com/v1/chat/completions
-```
-
-### **Cache Configuration**
+### Setup
 
 ```bash
-# Clear caches when needed
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
+# 1. Clone & install dependencies
+git clone <repository_url>
+cd latihanLaravel11
+composer install
+npm install
+
+# 2. Configure environment
+cp .env.example .env
+php artisan key:generate
+# edit .env and set: DB_*, DEEPSEEK_API_KEY, etc.
+
+# 3. Database
+php artisan migrate
+php artisan db:seed   # optional — creates an admin user
+
+# 4. Build assets & serve
+npm run build         # or: npm run dev
+php artisan serve
 ```
 
-### **API Testing**
+The application is available at `http://127.0.0.1:8000`.
 
-Test translation functionality in browser console:
+### Required environment variables
 
-```javascript
-// Test DeepSeek translation API
-window.debugDeepSeek.testAPI();
+| Variable                | Description                                       |
+| ----------------------- | ------------------------------------------------- |
+| `DEEPSEEK_API_KEY`      | DeepSeek API token (required for translation/chat) |
+| `DEEPSEEK_API_URL`      | DeepSeek endpoint, default `https://api.deepseek.com/v1/chat/completions` |
+| `DEEPSEEK_MODEL`        | Model name, default `deepseek-chat`                |
+| `GOOGLE_TRANSLATE_KEY`  | Optional, used by the legacy Google Translate service |
 
-// Test specific translation
-window.debugDeepSeek.testTranslation("نَظَرَ");
+## 📖 Usage
 
-// Force retranslate all elements
-window.TranslationEnhanced.forceRetranslate();
+1. Open the homepage and enter an Arabic verb (e.g. `كَتَبَ`).
+2. Click **Tashrif** — the Livewire component fetches conjugation data,
+   renders the 8-column tashrif table, and dispatches an event so the
+   client-side translator can fill in Indonesian translations.
+3. Logged-in users automatically have searches saved to the history page
+   (`/history`), with delete-one/delete-all powered by Livewire actions.
+4. Admins can visit `/admin/dashboard` for statistics and quick actions.
 
-// Clear translation cache
-window.TranslationEnhanced.clearCache();
+## 🔧 API endpoints (canonical)
 
-// Test translation API directly
-fetch("/api/translate", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')
-            .content,
-    },
-    body: JSON.stringify({
-        text: "نَظَرَ",
-        source: "ar",
-        target: "id",
-        force: true,
-    }),
-})
-    .then((r) => r.json())
-    .then(console.log);
-```
+| Method | URI                       | Description                                |
+| ------ | ------------------------- | ------------------------------------------ |
+| GET    | `/api/search-verb`        | Qutrub conjugation lookup (`?verb=`).      |
+| POST   | `/api/translate`          | Translate single Arabic → Indonesian text. |
+| POST   | `/api/translate/check`    | Probe DeepSeek connectivity.               |
+| POST   | `/api/translate/batch`    | Batch-translate up to N strings.           |
+| POST   | `/chat`                   | DeepSeek chat proxy (CSRF exempt).         |
 
-### **Debug Commands**
+## 🧪 Manual smoke-test checklist
 
-```javascript
-// Available debug functions
-window.debugDeepSeek = {
-    testAPI: () => {}, // Test API connectivity
-    testTranslation: (text) => {}, // Test specific translation
-    force: () => {}, // Force retranslation
-    clear: () => {}, // Clear cache
-};
-```
+After every change:
+
+1. `GET /` → 200, landing page renders.
+2. `GET /search` → 200, Livewire form rendered.
+3. `GET /search?query=كَتَبَ` → 200, full results auto-load.
+4. Login as a regular user → `GET /history` shows entries; delete-one and
+   delete-all work without page reload.
+5. Login as an admin → `GET /admin/dashboard` shows stats; Refresh / Clear
+   Cache / Optimize buttons trigger their respective Livewire actions.
+6. `GET /admin/users`, `/admin/monitoring`, `/admin/users/{id}`,
+   `/telescope` still load correctly.
+7. Sanity-check translation by searching a verb while authenticated and
+   confirming Arabic strings receive Indonesian glosses.
 
 ## 🤝 Contributing
 
-We welcome contributions to improve the Arabic learning experience:
-
-1. **Bug Reports**: Submit issues with detailed reproduction steps
-2. **Feature Requests**: Suggest new learning features or improvements
-3. **Translation Improvements**: Help enhance the Arabic-Indonesian dictionary
-4. **Code Contributions**: Follow Laravel coding standards and include tests
-
-### **Development Setup**
-
 ```bash
-# Install development dependencies
 composer install --dev
 npm install
-
-# Run tests
-php artisan test
-
-# Code formatting
-./vendor/bin/pint
-
-# Asset watching for development
-npm run dev
+./vendor/bin/pint        # PHP formatter
+php artisan test         # currently scaffolds only — see Roadmap
+npm run dev              # asset watcher
 ```
 
-### **Translation System Development**
+### Branching & PR workflow
 
--   Translations are handled by [`TranslationController.php`](app/Http/Controllers/TranslationController.php)
--   Frontend integration in [`resources/js/translation.js`](resources/js/translation.js)
--   Local dictionary can be expanded in the `getLocalTranslation()` method
--   Debug tools available in [`resources/js/translation-debug.js`](resources/js/translation-debug.js)
+| Prefix       | Use for                                |
+| ------------ | -------------------------------------- |
+| `feature/`   | New features (Livewire components, …). |
+| `refactor/`  | Behaviour-preserving restructuring.    |
+| `chore/`     | Build, deps, docs, infra.              |
 
-## 📝 API Endpoints
+Open one PR per task. Each PR includes a manual smoke-test checklist.
 
-### **Translation API**
+## 🗺️ Roadmap
 
--   `POST /api/translate` - Translate Arabic text to Indonesian using DeepSeek API
--   `POST /api/translate/check` - Check DeepSeek API status and connectivity
--   `POST /api/translate/batch` - Batch translation for multiple texts
--   `POST /translation/translate` - Alternative translation endpoint
--   `POST /translation/check-api` - Alternative API check endpoint
-
-### **Verb Conjugation API**
-
--   `GET /api/search-verb` - Search Arabic verb conjugations
--   `GET /search-verb` - Alternative search endpoint
-
-### **User Management API**
-
--   `GET /history` - Get user search history
--   `POST /history` - Save search to history
--   `DELETE /history/{id}` - Delete specific search history
--   `DELETE /history` - Clear all search history
-
-### **Admin API**
-
--   `GET /admin/dashboard` - Admin dashboard
--   `GET /admin/users` - User management
--   `GET /admin/users/{id}` - User detail view
--   `PATCH /admin/users/{id}/toggle-admin` - Toggle admin status
--   `POST /admin/clear-cache` - Clear system cache
--   `POST /admin/optimize` - Optimize system
-
-### **Chat API**
-
--   `POST /chat` - AI chat using DeepSeek API (CSRF exempt)
-
-## 🔒 Security Features
-
--   **CSRF Protection**: All forms protected with CSRF tokens
--   **Input Validation**: Comprehensive input sanitization with Arabic text validation
--   **Authentication**: Secure user authentication with Laravel's built-in system
--   **API Rate Limiting**: Protection against API abuse
--   **Error Handling**: Secure error messages without sensitive data exposure
--   **Admin Middleware**: Separate admin access control
--   **Password Policies**: Strong password requirements with validation
--   **Session Security**: Secure session management with regeneration
-
-## 📊 Performance Features
-
--   **Multi-Layer Caching**: Translation and search result caching with memory and localStorage
--   **Database Optimization**: Efficient queries with proper indexing
--   **Asset Optimization**: Minified CSS and JavaScript for production
--   **API Optimization**: Smart request batching and error handling
--   **Lazy Loading**: Optimized loading of translation data
--   **Response Optimization**: Compressed responses and optimized JSON
--   **Cache Invalidation**: Smart cache invalidation strategies
-
-## 📱 Browser Support & Responsive Design
-
--   **Modern Browsers**: Chrome 80+, Firefox 75+, Safari 13+, Edge 80+
--   **Arabic Text**: Full RTL (Right-to-Left) text support
--   **Responsive Design**: Mobile-first responsive layout
--   **Progressive Enhancement**: Graceful degradation for older browsers
--   **Touch Support**: Optimized touch interactions for mobile devices
--   **Horizontal Scrolling**: Smooth horizontal scrolling for tables
--   **Custom Scrollbars**: Styled scrollbars for better user experience
--   **Scroll Indicators**: Visual indicators for scrollable content
-
-### **Mobile Features**
-
--   **Touch-Friendly Controls**: Optimized for touch interaction
--   **Scroll Hints**: Automatic scroll hints for mobile users
--   **Responsive Tables**: Horizontal scrolling conjugation tables
--   **Mobile Navigation**: Collapsible navigation for mobile devices
--   **Touch Scrolling**: Enhanced touch scrolling with momentum
-
-## 🐛 Troubleshooting
-
-### **Common Issues**
-
-1. **Translation Not Working**:
-
-    - Check DeepSeek API key configuration in `.env`
-    - Verify API key: `sk-86cd11de25dc45a3920647b89c398c75`
-    - Test API connectivity using `window.debugDeepSeek.testAPI()`
-
-2. **Database Errors**:
-
-    - Verify database connection and run migrations
-    - Check search_histories table exists: `php artisan migrate`
-
-3. **Asset Loading Issues**:
-
-    - Run `npm run build` for production
-    - Clear browser cache
-    - Check Vite configuration
-
-4. **Horizontal Scrolling Issues**:
-    - Check CSS for overflow-x-auto classes
-    - Verify min-w-max classes on scroll containers
-    - Test on different screen sizes
-
-### **Debug Commands**
-
-```bash
-# Check application status
-php artisan about
-
-# View logs
-tail -f storage/logs/laravel.log
-
-# Test database connection
-php artisan tinker
->>> DB::connection()->getPdo();
-
-# Check translation system
-php artisan tinker
->>> app(App\Http\Controllers\TranslationController::class)->checkApi();
-```
-
-### **Browser Console Debugging**
-
-```javascript
-// Check translation system
-window.debugDeepSeek.testAPI();
-
-// Test specific word
-window.debugDeepSeek.testTranslation("نَظَرَ");
-
-// Force refresh translations
-window.TranslationEnhanced.forceRetranslate();
-
-// Check available debug functions
-console.log(window.debugDeepSeek);
-console.log(window.TranslationEnhanced);
-```
+- Convert `admin/users`, `admin/user-detail`, `admin/monitoring` to Livewire.
+- Replace `AdminStatsService::databaseSize()` MySQL `information_schema`
+  query with a SQLite-aware implementation (current project default is
+  SQLite — the legacy method still works only when MySQL is configured).
+- Add Pest/PHPUnit tests for Livewire components and Services.
+- Convert chat into a Livewire component with streaming responses.
 
 ## 📄 License
 
-This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT — see [LICENSE](LICENSE).
 
-## 🙏 Acknowledgments
+## 🙏 Acknowledgements
 
--   **Laravel Framework**: For the robust backend foundation
--   **Qutrub Project**: For Arabic verb conjugation data and API access
--   **DeepSeek**: For AI-powered translation capabilities and language model
--   **Tailwind CSS**: For modern, responsive styling and utility classes
--   **Arabic Language Community**: For linguistic guidance and feedback
--   **Laravel Telescope**: For debugging and monitoring capabilities
--   **Vite**: For modern asset compilation and hot reloading
-
-## 📞 Support
-
-For support, bug reports, or feature requests:
-
--   **GitHub Issues**: Submit detailed issue reports with reproduction steps
--   **Documentation**: Check the comprehensive inline documentation
--   **Community**: Join discussions in the project repository
--   **Translation Issues**: Report translation quality issues for improvement
-
-### **Getting Help**
-
-1. **Check Documentation**: Review this README and inline code comments
-2. **Use Debug Tools**: Utilize built-in debug functions for troubleshooting
-3. **Check Logs**: Review Laravel logs for error details
-4. **Test APIs**: Use browser console tools to test API connectivity
-
----
-
-**Happy Learning Arabic! 🌟**
-
-_"اللغة العربية هي مفتاح الثقافة والمعرفة"_  
-_"Arabic language is the key to culture and knowledge"_
-
----
-
-## 📋 Feature Changelog
-
-### **v2.0 - Enhanced AI Translation & Responsive Design**
-
--   ✅ DeepSeek API integration for AI translation
--   ✅ Responsive horizontal scrolling for conjugation tables
--   ✅ Enhanced caching system with multi-layer support
--   ✅ Mobile-first responsive design improvements
--   ✅ Debug tools for translation testing
--   ✅ Admin panel for user management
--   ✅ Improved search history management
--   ✅ Touch-friendly mobile interface
--   ✅ Custom scrollbar styling
--   ✅ Translation validation and error handling
-
-### **v1.0 - Core Features**
-
--   ✅ Basic Arabic verb conjugation
--   ✅ User authentication system
--   ✅ Search history functionality
--   ✅ External API integration
--   ✅ Basic translation features
+- Laravel Framework
+- Livewire 3
+- Tailwind CSS
+- Qutrub project
+- DeepSeek AI
