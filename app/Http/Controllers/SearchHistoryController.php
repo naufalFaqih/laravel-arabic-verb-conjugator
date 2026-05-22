@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreSearchHistoryRequest;
 use App\Services\SearchHistoryService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
@@ -48,7 +49,7 @@ class SearchHistoryController extends Controller
         }
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreSearchHistoryRequest $request): JsonResponse
     {
         if (! $this->histories->isAvailable()) {
             return response()->json([
@@ -58,12 +59,7 @@ class SearchHistoryController extends Controller
         }
 
         try {
-            $validated = $request->validate([
-                'query' => 'required|string|max:255',
-                'result' => 'nullable',
-            ]);
-
-            $history = $this->histories->store((int) Auth::id(), $validated);
+            $history = $this->histories->store((int) Auth::id(), $request->validated());
 
             return response()->json([
                 'success' => true,

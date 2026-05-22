@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\ChatRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -11,12 +11,8 @@ class ChatController extends Controller
     /**
      * Handle the incoming chat request, proxying to DeepSeek.
      */
-    public function __invoke(Request $request)
+    public function __invoke(ChatRequest $request)
     {
-        $request->validate([
-            'message' => 'required|string|max:1000',
-        ]);
-
         $apiKey = (string) config('services.deepseek.api_key', '');
         $apiUrl = (string) config('services.deepseek.api_url', 'https://api.deepseek.com/v1/chat/completions');
         $model = (string) config('services.deepseek.model', 'deepseek-chat');
