@@ -27,6 +27,7 @@
     <meta name="auth-check" content="false">
 @endauth
     @vite('resources/css/app.css')
+    @livewireStyles
     @push('styles')
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <link href="{{ asset('css/arabic-keyboard.css') }}" rel="stylesheet">
@@ -125,5 +126,6 @@
     <script src="{{ asset('js/arabic-keyboard.js') }}"></script>
     @endpush
 
+    @livewireScripts
 </body>
 </html>

@@ -81,3 +81,11 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admi
     Route::post('/optimize', [AdminController::class, 'optimize'])->name('optimize');
 });
 
+
+
+// Dev-only smoke test untuk Livewire (di-hapus di Task 9)
+if (app()->environment('local')) {
+    Route::get('/dev/livewire-check', function () {
+        return view('dev.livewire-check', ['title' => 'Livewire Smoke Test']);
+    })->name('dev.livewire-check');
+}
