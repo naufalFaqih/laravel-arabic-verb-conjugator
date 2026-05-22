@@ -26,7 +26,7 @@
 @else
     <meta name="auth-check" content="false">
 @endauth
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
     @push('styles')
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
