@@ -11,6 +11,7 @@
         "laravel/sanctum": "^4.1",
         "laravel/telescope": "^5.8",
         "laravel/tinker": "^2.9",
+        "livewire/livewire": "^3.5",
         "stichoza/google-translate-php": "^5.3"
     },
     "require-dev": {
