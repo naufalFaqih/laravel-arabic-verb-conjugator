@@ -202,14 +202,11 @@
     right: 0;
     bottom: 0;
     z-index: 50;
-    transition: transform 0.2s ease, opacity 0.2s ease;
     direction: rtl;
-}
-
-#arabic-keyboard.ak-hidden {
     transform: translateY(100%);
     opacity: 0;
     pointer-events: none;
+    transition: transform 0.18s ease, opacity 0.18s ease;
 }
 
 #arabic-keyboard.ak-visible {
@@ -218,9 +215,18 @@
     pointer-events: auto;
 }
 
-#arabic-keyboard.ak-hide {
-    transform: translateY(100%);
-    opacity: 0;
+/*
+ * When the keyboard is open we extend the page bottom so that the focused
+ * input can be scrolled into view above the keyboard via scrollIntoView().
+ */
+body.ak-active {
+    padding-bottom: 320px;
+}
+
+@media (max-width: 640px) {
+    body.ak-active {
+        padding-bottom: 260px;
+    }
 }
 
 .ak-panel {
