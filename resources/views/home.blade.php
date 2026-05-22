@@ -213,7 +213,7 @@
                 <span class="text-right text-gray-800 font-medium">{!! $history->query !!}</span>
                 <div class="text-xs text-gray-500">{{ $history->created_at->diffForHumans() }}</div>
               </div>
-              <a href="/?query={{ urlencode($history->query) }}" class="ml-4 text-indigo-600 hover:text-indigo-900 text-sm">
+              <a href="/search?query={{ urlencode($history->query) }}" class="ml-4 text-indigo-600 hover:text-indigo-900 text-sm">
                 Search Again
               </a>
             </div>
@@ -226,6 +226,24 @@
 @endauth
 
 <script>
+    // Auto-search jika ada query parameter
+  document.addEventListener('DOMContentLoaded', function() {
+      const query = "{{ $query ?? '' }}";
+
+      if (query) {
+          // Set value ke input
+          document.getElementById('verbInput').value = query;
+
+          // Trigger search otomatis
+          const form = document.getElementById('searchForm');
+          if (form) {
+              // Delay sedikit agar page fully loaded
+              setTimeout(() => {
+                  form.dispatchEvent(new Event('submit'));
+              }, 100);
+          }
+      }
+  });
 // Enhanced scroll behavior untuk hasil pencarian
 document.addEventListener('DOMContentLoaded', function() {
     // Update untuk main scroll container

@@ -51,7 +51,7 @@
                 </div>
               </div>
               <div class="flex items-center space-x-2">
-                <a href="/?query={{ urlencode($history->query) }}" class="text-indigo-600 hover:text-indigo-900 text-sm">
+                <a href="/search?query={{ urlencode($history->query) }}" class="text-indigo-600 hover:text-indigo-900 text-sm">
                   Search again
                 </a>
                 <form action="{{ route('history.destroy', $history->id) }}" method="POST" class="inline">
