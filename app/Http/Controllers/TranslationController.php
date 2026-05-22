@@ -11,17 +11,19 @@ class TranslationController extends Controller
 {
     private $deepseekApiKey;
     private $deepseekApiUrl;
-    
+    private $deepseekModel;
+
     public function __construct()
     {
-        // PERBAIKAN: Inisialisasi di constructor dengan hardcode untuk testing
-        $this->deepseekApiKey = env('DEEPSEEK_API_KEY') ?: 'sk-86cd11de25dc45a3920647b89c398c75';
-        $this->deepseekApiUrl = env('DEEPSEEK_API_URL', 'https://api.deepseek.com/v1/chat/completions');
-        
+        $this->deepseekApiKey = (string) config('services.deepseek.api_key', '');
+        $this->deepseekApiUrl = (string) config('services.deepseek.api_url', 'https://api.deepseek.com/v1/chat/completions');
+        $this->deepseekModel = (string) config('services.deepseek.model', 'deepseek-chat');
+
         Log::info('TranslationController initialized', [
             'api_key_present' => !empty($this->deepseekApiKey),
-            'api_key_length' => strlen($this->deepseekApiKey ?? ''),
-            'api_url' => $this->deepseekApiUrl
+            'api_key_length' => strlen($this->deepseekApiKey),
+            'api_url' => $this->deepseekApiUrl,
+            'model' => $this->deepseekModel,
         ]);
     }
     
@@ -244,7 +246,7 @@ private function isValidCachedTranslation($cachedTranslation, $originalText)
     $userPrompt = $this->buildUserPrompt($cleanText, $source, $target);
     
     $requestData = [
-        'model' => 'deepseek-chat',
+        'model' => $this->deepseekModel,
         'messages' => [
             [
                 'role' => 'system',

@@ -4,29 +4,51 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ChatController extends Controller
 {
     /**
-     * Handle the incoming request.
+     * Handle the incoming chat request, proxying to DeepSeek.
      */
     public function __invoke(Request $request)
     {
         $request->validate([
             'message' => 'required|string|max:1000',
         ]);
-        $message = [
-            ['role' => 'system',
-            'content' => 'Kamu adalan asisten AI yang hanya menerjemahkan kata dari bahasa Arab ke bahasa Indonesia. Jangan menjawab pertanyaan lain selain terjemahan kata.'],
-            ['role' => 'user','content' => $request->post('content')],
+
+        $apiKey = (string) config('services.deepseek.api_key', '');
+        $apiUrl = (string) config('services.deepseek.api_url', 'https://api.deepseek.com/v1/chat/completions');
+        $model = (string) config('services.deepseek.model', 'deepseek-chat');
+
+        if ($apiKey === '') {
+            Log::warning('Chat request received but DEEPSEEK_API_KEY is not configured.');
+
+            return response()->json([
+                'success' => false,
+                'message' => 'DeepSeek API key belum dikonfigurasi. Set DEEPSEEK_API_KEY di .env.',
+            ], 503);
+        }
+
+        $messages = [
+            [
+                'role' => 'system',
+                'content' => 'Kamu adalah asisten AI yang hanya menerjemahkan kata dari bahasa Arab ke bahasa Indonesia. Jangan menjawab pertanyaan lain selain terjemahan kata.',
+            ],
+            [
+                'role' => 'user',
+                'content' => (string) $request->input('content', $request->input('message', '')),
+            ],
         ];
 
-        $res = Http::withToken('sk-ad905c84a5b3455681cdd48513a6f00e') -> post('https://api.deepseek.com/v1/chat/completions', [
-            'model' => 'deepseek-chat',
-            'messages' => $message,
-            'stream' => false,
-        ]);
+        $response = Http::withToken($apiKey)
+            ->timeout(30)
+            ->post($apiUrl, [
+                'model' => $model,
+                'messages' => $messages,
+                'stream' => false,
+            ]);
 
-        return $res;
+        return $response;
     }
 }

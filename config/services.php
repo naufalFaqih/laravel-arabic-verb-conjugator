@@ -13,10 +13,16 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
-    
-'google_translate' => [
-    'api_key' => env('GOOGLE_TRANSLATE_API_KEY', 'AIzaSyBk7iLFuuVjZuYMTBZmC6FycZHjEjg2Yio'),
-],
+
+    'google_translate' => [
+        'api_key' => env('GOOGLE_TRANSLATE_API_KEY'),
+    ],
+
+    'deepseek' => [
+        'api_key' => env('DEEPSEEK_API_KEY'),
+        'api_url' => env('DEEPSEEK_API_URL', 'https://api.deepseek.com/v1/chat/completions'),
+        'model' => env('DEEPSEEK_MODEL', 'deepseek-chat'),
+    ],
 
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
