@@ -98,7 +98,6 @@
       <!-- Menu Navigasi Mobile -->
       <div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
         <a href="/" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('/') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">Home</a>
-        <a href="/about" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('about') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">About</a>
       </div>
 
       <!-- Mobile Auth Menu -->

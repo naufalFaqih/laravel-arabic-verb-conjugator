@@ -1,3 +1,13 @@
+/**
+ * Arabic on-screen keyboard.
+ *
+ * Watches inputs marked with class `arabic-input` (or `data-arabic-keyboard`)
+ * and pops up the keyboard rendered at #arabic-keyboard. On desktop the
+ * keyboard appears on focus; on mobile it appears when the user taps a
+ * trigger button marked with `data-mobile-arabic`.
+ *
+ * Bundled via Vite from `resources/js/app.js`.
+ */
 class ArabicKeyboard {
     constructor() {
         this.currentInput = null;
@@ -6,65 +16,48 @@ class ArabicKeyboard {
     }
 
     init() {
-        // Add event listeners to all Arabic input fields
         this.attachToInputs();
-
-        // Add keyboard event listeners
         this.setupKeyboardEvents();
-
-        // Add click outside to close
         this.setupOutsideClick();
     }
 
     attachToInputs() {
-        // Attach to existing inputs
-        const arabicInputs = document.querySelectorAll(
-            ".arabic-input, [data-arabic-keyboard]"
-        );
-        arabicInputs.forEach((input) => {
-            this.setupInputEvents(input);
-        });
+        document
+            .querySelectorAll(".arabic-input, [data-arabic-keyboard]")
+            .forEach((input) => this.setupInputEvents(input));
 
-        // Observer for dynamically added inputs
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 mutation.addedNodes.forEach((node) => {
-                    if (node.nodeType === 1) {
-                        const newInputs =
-                            node.querySelectorAll?.(
-                                ".arabic-input, [data-arabic-keyboard]"
-                            ) || [];
-                        newInputs.forEach((input) => {
-                            this.setupInputEvents(input);
-                        });
-                    }
+                    if (node.nodeType !== 1) return;
+                    const newInputs =
+                        node.querySelectorAll?.(
+                            ".arabic-input, [data-arabic-keyboard]"
+                        ) || [];
+                    newInputs.forEach((input) => this.setupInputEvents(input));
                 });
             });
         });
 
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-        });
+        observer.observe(document.body, { childList: true, subtree: true });
     }
 
     setupInputEvents(input) {
-        // Desktop: Show keyboard on focus
+        if (input.dataset.arabicKeyboardBound === "1") return;
+        input.dataset.arabicKeyboardBound = "1";
+
         input.addEventListener("focus", (e) => {
             if (window.innerWidth > 768) {
-                // Only on desktop
                 this.showKeyboard(e.target);
             }
         });
 
-        // Mobile: Show on special button click
         input.addEventListener("click", (e) => {
             if (e.target.hasAttribute("data-mobile-arabic")) {
                 this.showKeyboard(e.target);
             }
         });
 
-        // Set RTL direction and Arabic font
         input.style.direction = "rtl";
         input.style.textAlign = "right";
         input.style.fontFamily = "'Amiri', 'Times New Roman', serif";
@@ -73,36 +66,36 @@ class ArabicKeyboard {
     showKeyboard(input) {
         this.currentInput = input;
         const keyboard = document.getElementById("arabic-keyboard");
+        if (!keyboard) return;
 
-        if (keyboard) {
-            keyboard.classList.remove("d-none");
-            keyboard.classList.add("show");
-            this.isVisible = true;
+        keyboard.classList.remove("ak-hidden");
+        keyboard.classList.add("ak-visible");
+        this.isVisible = true;
 
-            // Position cursor at end of input
-            input.focus();
-            input.setSelectionRange(input.value.length, input.value.length);
-        }
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
     }
 
     hideKeyboard() {
         const keyboard = document.getElementById("arabic-keyboard");
-        if (keyboard && this.isVisible) {
-            keyboard.classList.add("hide");
-            setTimeout(() => {
-                keyboard.classList.add("d-none");
-                keyboard.classList.remove("show", "hide");
-            }, 300);
-            this.isVisible = false;
-            this.currentInput = null;
-        }
+        if (!keyboard || !this.isVisible) return;
+
+        keyboard.classList.add("ak-hide");
+        setTimeout(() => {
+            keyboard.classList.remove("ak-visible", "ak-hide");
+            keyboard.classList.add("ak-hidden");
+        }, 200);
+
+        this.isVisible = false;
+        this.currentInput = null;
     }
 
     setupKeyboardEvents() {
         document.addEventListener("click", (e) => {
-            if (e.target.classList.contains("key")) {
+            const key = e.target.closest(".ak-key");
+            if (key) {
                 e.preventDefault();
-                this.handleKeyPress(e.target);
+                this.handleKeyPress(key);
             }
         });
     }
@@ -119,7 +112,6 @@ class ArabicKeyboard {
             this.handleAction(action);
         }
 
-        // Keep focus on input
         this.currentInput.focus();
     }
 
@@ -130,18 +122,15 @@ class ArabicKeyboard {
         const end = this.currentInput.selectionEnd;
         const currentValue = this.currentInput.value;
 
-        // Insert text at cursor position
         const newValue =
             currentValue.substring(0, start) +
             text +
             currentValue.substring(end);
         this.currentInput.value = newValue;
 
-        // Move cursor after inserted text
         const newPosition = start + text.length;
         this.currentInput.setSelectionRange(newPosition, newPosition);
 
-        // Trigger input event for frameworks
         this.currentInput.dispatchEvent(new Event("input", { bubbles: true }));
     }
 
@@ -155,22 +144,22 @@ class ArabicKeyboard {
             case "space":
                 this.insertText(" ");
                 break;
+            case "close":
+                this.hideKeyboard();
+                break;
         }
     }
 
     handleBackspace() {
         const start = this.currentInput.selectionStart;
         const end = this.currentInput.selectionEnd;
+        const currentValue = this.currentInput.value;
 
         if (start !== end) {
-            // Delete selected text
-            const currentValue = this.currentInput.value;
             this.currentInput.value =
                 currentValue.substring(0, start) + currentValue.substring(end);
             this.currentInput.setSelectionRange(start, start);
         } else if (start > 0) {
-            // Delete character before cursor
-            const currentValue = this.currentInput.value;
             this.currentInput.value =
                 currentValue.substring(0, start - 1) +
                 currentValue.substring(start);
@@ -183,21 +172,18 @@ class ArabicKeyboard {
     setupOutsideClick() {
         document.addEventListener("click", (e) => {
             const keyboard = document.getElementById("arabic-keyboard");
-            const isClickInsideKeyboard = keyboard?.contains(e.target);
-            const isClickOnArabicInput =
-                e.target.classList.contains("arabic-input") ||
-                e.target.hasAttribute("data-arabic-keyboard");
+            if (!keyboard) return;
 
-            if (
-                !isClickInsideKeyboard &&
-                !isClickOnArabicInput &&
-                this.isVisible
-            ) {
+            const isClickInside = keyboard.contains(e.target);
+            const isClickOnArabicInput =
+                e.target.classList?.contains("arabic-input") ||
+                e.target.hasAttribute?.("data-arabic-keyboard");
+
+            if (!isClickInside && !isClickOnArabicInput && this.isVisible) {
                 this.hideKeyboard();
             }
         });
 
-        // Hide on escape key
         document.addEventListener("keydown", (e) => {
             if (e.key === "Escape" && this.isVisible) {
                 this.hideKeyboard();
@@ -206,20 +192,8 @@ class ArabicKeyboard {
     }
 }
 
-// Global functions for template usage
-window.hideArabicKeyboard = function () {
-    if (window.arabicKeyboard) {
-        window.arabicKeyboard.hideKeyboard();
-    }
-};
-
-window.showArabicKeyboard = function (input) {
-    if (window.arabicKeyboard) {
-        window.arabicKeyboard.showKeyboard(input);
-    }
-};
-
-// Initialize when DOM is ready
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
     window.arabicKeyboard = new ArabicKeyboard();
 });
+
+export default ArabicKeyboard;

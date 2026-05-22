@@ -151,21 +151,21 @@
 
             <div class="overflow-x-auto pb-2" id="mainScrollContainer">
                 <div class="min-w-max">
-                    {{-- Column headers --}}
+                    {{-- Column headers (Arabic only, no auto-translate) --}}
                     <div class="pb-3 mb-6">
                         <div class="grid grid-cols-8 gap-4 text-center font-bold break-words min-w-max">
                             @foreach($columns as $heading)
-                                <div class="p-2 bg-blue-50 rounded-lg shadow-sm break-words font-bold text-center text-md text-blue-800" data-translate-arabic="{{ $heading }}">{{ $heading }}</div>
+                                <div class="p-2 bg-blue-50 rounded-lg shadow-sm break-words font-bold text-center text-md text-blue-800">{{ $heading }}</div>
                             @endforeach
                         </div>
                     </div>
 
-                    {{-- Conjugation cells (8 columns each w-64) --}}
+                    {{-- Conjugation cells (8 columns each w-64) — Arabic only, no translation --}}
                     <div class="flex flex-row gap-4 mt-6 text-center font-bold min-w-max">
                         @foreach(['amarMuakkad','amar','mudhoriMuakkad','mudhoriMansub','mudhoriMajzum','mudhoriMalum','madhiMalum','domir'] as $cellKey)
                             <div class="p-4 bg-gray-100 rounded-lg shadow-md w-64 flex-shrink-0">
                                 @foreach($cells[$cellKey] ?? [] as $value)
-                                    <div class="mb-2 text-right" data-translate-arabic="{{ $value }}">{{ $value }}</div>
+                                    <div class="mb-2 text-right">{{ $value }}</div>
                                 @endforeach
                             </div>
                         @endforeach
