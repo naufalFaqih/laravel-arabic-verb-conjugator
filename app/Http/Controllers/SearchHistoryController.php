@@ -2,132 +2,114 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\SearchHistoryService;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Models\SearchHistory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\View\View;
 
+/**
+ * Thin HTTP layer over {@see SearchHistoryService}.
+ */
 class SearchHistoryController extends Controller
 {
-    /**
-     * Tampilkan halaman riwayat pencarian
-     */
-     public function index()
+    public function __construct(private readonly SearchHistoryService $histories)
     {
-        try {
-            // Check if the table exists first
-            if (!Schema::hasTable('search_histories')) {
-                return view('history', [
-                    'histories' => collect([]),
-                    'title' => 'Riwayat Pencarian',
-                    'message' => 'Sistem riwayat pencarian belum tersedia.'
-                ]);
-            }
+    }
 
-            // Ambil 20 riwayat pencarian terakhir
-            $user = Auth::user();
-            $histories = SearchHistory::where('user_id', $user->id)
-                ->latest()
-                ->take(20)
-                ->get();
-
+    public function index(): View
+    {
+        if (! $this->histories->isAvailable()) {
             return view('history', [
-                'histories' => $histories,
-                'title' => 'Riwayat Pencarian'
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error retrieving search history: ' . $e->getMessage());
-            return view('history', [
-                'histories' => collect([]), // Empty collection
+                'histories' => new Collection(),
                 'title' => 'Riwayat Pencarian',
-                'error' => 'Terjadi kesalahan saat mengambil data riwayat pencarian.'
+                'message' => 'Sistem riwayat pencarian belum tersedia.',
+            ]);
+        }
+
+        try {
+            $userId = (int) Auth::id();
+
+            return view('history', [
+                'histories' => $this->histories->listForUser($userId),
+                'title' => 'Riwayat Pencarian',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Error retrieving search history: ' . $e->getMessage());
+
+            return view('history', [
+                'histories' => new Collection(),
+                'title' => 'Riwayat Pencarian',
+                'error' => 'Terjadi kesalahan saat mengambil data riwayat pencarian.',
             ]);
         }
     }
 
-    /**
-     * Simpan riwayat pencarian baru
-     */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        try {
-            // Check if table exists
-            if (!Schema::hasTable('search_histories')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Sistem riwayat pencarian belum tersedia'
-                ], 500);
-            }
+        if (! $this->histories->isAvailable()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sistem riwayat pencarian belum tersedia',
+            ], 500);
+        }
 
+        try {
             $validated = $request->validate([
                 'query' => 'required|string|max:255',
                 'result' => 'nullable',
             ]);
 
-            Log::info('Menyimpan riwayat pencarian', [
-                'query' => $validated['query'],
-                'user_id' => Auth::id()
-            ]);
-
-            $history = new SearchHistory();
-            $history->user_id = Auth::id();
-            $history->query = $validated['query'];
-            $history->result = $validated['result'];
-            $history->save();
+            $history = $this->histories->store((int) Auth::id(), $validated);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Pencarian berhasil disimpan',
-                'history' => $history
+                'history' => $history,
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Error saving search history: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menyimpan riwayat pencarian: ' . $e->getMessage()
+                'message' => 'Gagal menyimpan riwayat pencarian: ' . $e->getMessage(),
             ], 500);
         }
     }
 
-
-
-    /**
-     * Hapus riwayat pencarian
-     */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         try {
-            $history = SearchHistory::where('id', $id)
-                ->where('user_id', Auth::id())
-                ->firstOrFail();
+            $deleted = $this->histories->deleteForUser($id, (int) Auth::id());
 
-            $history->delete();
+            if (! $deleted) {
+                return back()->with('error', 'Riwayat pencarian tidak ditemukan atau Anda tidak memiliki akses');
+            }
 
             return back()->with('success', 'Riwayat pencarian berhasil dihapus');
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return back()->with('error', 'Riwayat pencarian tidak ditemukan atau Anda tidak memiliki akses');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Error deleting search history: ' . $e->getMessage());
+
             return back()->with('error', 'Terjadi kesalahan saat menghapus riwayat pencarian');
         }
     }
 
-    /**
-     * Hapus semua riwayat pencarian
-     */
-    public function destroyAll()
+    public function destroyAll(): RedirectResponse
     {
         try {
-            $user = Auth::user();
-            $count = SearchHistory::where('user_id', $user->id)->count();
-            SearchHistory::where('user_id', $user->id)->delete();
+            $count = $this->histories->deleteAllForUser((int) Auth::id());
 
-            return back()->with('success', $count > 0 ?
-                "Berhasil menghapus $count riwayat pencarian" :
-                'Tidak ada riwayat pencarian untuk dihapus');
-        } catch (\Exception $e) {
+            $message = $count > 0
+                ? "Berhasil menghapus {$count} riwayat pencarian"
+                : 'Tidak ada riwayat pencarian untuk dihapus';
+
+            return back()->with('success', $message);
+        } catch (\Throwable $e) {
             Log::error('Error deleting all search histories: ' . $e->getMessage());
+
             return back()->with('error', 'Terjadi kesalahan saat menghapus riwayat pencarian');
         }
     }

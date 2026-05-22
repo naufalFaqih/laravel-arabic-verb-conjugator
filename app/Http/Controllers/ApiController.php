@@ -1,33 +1,35 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Services\VerbSearchService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
+/**
+ * Thin HTTP layer over the external Qutrub conjugation API.
+ */
 class ApiController extends Controller
 {
-    public function searchVerb(Request $request)
+    public function __construct(private readonly VerbSearchService $verbSearch)
     {
-        $verb = $request->query('verb'); // Ambil parameter 'verb' dari request
+    }
 
-        if (!$verb) {
-            return response()->json(['error' => 'Parameter verb is required'], 400);
+    /**
+     * GET /api/search-verb?verb=...
+     */
+    public function searchVerb(Request $request): JsonResponse
+    {
+        $verb = (string) $request->query('verb', '');
+        $result = $this->verbSearch->search($verb);
+
+        if (! ($result['success'] ?? false)) {
+            return response()->json(
+                ['error' => $result['error'] ?? 'Unknown error'],
+                $result['status'] ?? 500
+            );
         }
 
-        // URL API eksternal
-        $apiUrl = "http://qutrub.arabeyes.org/api?verb=" . urlencode($verb);
-
-        try {
-            // Kirim request ke API eksternal
-            $response = Http::get($apiUrl);
-
-            if ($response->failed()) {
-                return response()->json(['error' => 'Failed to fetch data from external API'], 500);
-            }
-
-            return response()->json($response->json()); // Kembalikan hasil API ke frontend
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred: ' . $e->getMessage()], 500);
-        }
+        return response()->json($result['data'] ?? []);
     }
 }
