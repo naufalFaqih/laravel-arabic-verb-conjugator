@@ -58,6 +58,8 @@
             id="verb"
             name="verb"
             wire:model="verb"
+            inputmode="none"
+            autocomplete="off"
             class="block w-3/4 md:w-1/2 lg:w-1/3 mx-auto rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-md p-2 text-right font-bold arabic-input"
             placeholder="اشتغل, سَلّمَ, لعب :Contoh"
             pattern="^[\u0600-\u06FF\s]+$"

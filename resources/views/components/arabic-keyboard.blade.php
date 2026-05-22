@@ -9,7 +9,7 @@
     The layout follows a typical Arabic keyboard arrangement plus a row of
     common harakat (diacritics) used in classical Arabic verb morphology.
 --}}
-<div id="arabic-keyboard" class="ak-hidden" aria-hidden="true">
+<div id="arabic-keyboard" aria-hidden="true">
     <div class="ak-panel">
         <div class="ak-header">
             <span class="ak-title">⌨ لوحة المفاتيح العربية</span>
