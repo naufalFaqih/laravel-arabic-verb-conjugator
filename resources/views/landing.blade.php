@@ -1,16 +1,15 @@
 @vite('resources/css/app.css')
 <x-layout>
-  <x-slot:title>Welcome to ArabicMorph - Arabic Conjugation Tool</x-slot:title>
-
+    <x-slot:title>Welcome to ArabicMorph - Arabic Conjugation Tool</x-slot:title>
   <!-- Hero Section -->
   <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50">
 
     <!-- Navigation Bar -->
-    <nav class="bg-white shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav class="shadow-sm">
+      <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
-            <h1 class="text-2xl font-bold text-indigo-600">ArabicMorph</h1>
+            <img src="{{ asset('img/logo_nav.png') }}" alt="ArabicMorph Logo" class="h-40 w-90 mr-3 mt-8">
           </div>
           <div class="flex items-center space-x-4">
             @guest
@@ -36,7 +35,7 @@
         </p>
         <p class="text-lg text-gray-500 mb-8 max-w-3xl mx-auto">
           Learn and practice Arabic verb conjugation (Tashrif Lughowi) with our comprehensive tool.
-          Perfect for students studying Arabic grammar and morphology.
+          Perfect for students studying Arabic morphology.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <a href="{{ route('home') }}"
@@ -69,7 +68,7 @@
           <div class="text-5xl mb-4 text-center">🔍</div>
           <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Smart Search Engine</h3>
           <p class="text-gray-600 text-center">
-            Search any Arabic verb instantly and get accurate conjugation results with pronunciation guide.
+            Search any Arabic verb instantly and get accurate conjugation results with translation in Bahasa.
           </p>
         </div>
 
@@ -95,7 +94,7 @@
 
           <p>
             Our platform provides instant access to complete conjugation tables for any Arabic verb,
-            covering all tenses, moods, and pronouns according to classical Arabic grammar rules.
+            covering all chapter and pronouns according to classical Arabic morphology pattern.
           </p>
 
           <div class="bg-indigo-50 border-l-4 border-indigo-600 p-6 my-6 rounded-r-lg">
@@ -105,7 +104,7 @@
                 <svg class="w-6 h-6 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                 </svg>
-                Students studying Arabic grammar (Nahwu & Sharaf)
+                Students studying Arabic morphology (Sharaf)
               </li>
               <li class="flex items-start">
                 <svg class="w-6 h-6 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">

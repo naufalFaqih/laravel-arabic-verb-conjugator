@@ -21,6 +21,7 @@ Route::get('/', function () {
 })->name('landing');
 
 Route::get('/search', function (){
+    $query = request('q');
     return view('home', ['title' => 'ArabicMorph - Arabic Conjugation Tool']);
 })->name('home');
 // Authentication Routes - hanya bisa diakses jika tidak login (guest)
@@ -43,6 +44,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/history', [SearchHistoryController::class, 'store'])->name('history.store');
     Route::delete('/history/{id}', [SearchHistoryController::class, 'destroy'])->name('history.destroy');
     Route::delete('/history', [SearchHistoryController::class, 'destroyAll'])->name('history.destroy.all');
+
+
 });
 Route::get('/api/search-verb', [ApiController::class, 'searchVerb'])->name('api.searchVerb');
 

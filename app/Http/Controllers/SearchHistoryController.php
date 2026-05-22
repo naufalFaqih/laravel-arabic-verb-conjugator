@@ -24,14 +24,14 @@ class SearchHistoryController extends Controller
                     'message' => 'Sistem riwayat pencarian belum tersedia.'
                 ]);
             }
-            
+
             // Ambil 20 riwayat pencarian terakhir
             $user = Auth::user();
             $histories = SearchHistory::where('user_id', $user->id)
                 ->latest()
                 ->take(20)
                 ->get();
-                
+
             return view('history', [
                 'histories' => $histories,
                 'title' => 'Riwayat Pencarian'
@@ -59,17 +59,17 @@ class SearchHistoryController extends Controller
                     'message' => 'Sistem riwayat pencarian belum tersedia'
                 ], 500);
             }
-            
+
             $validated = $request->validate([
                 'query' => 'required|string|max:255',
                 'result' => 'nullable',
             ]);
-            
+
             Log::info('Menyimpan riwayat pencarian', [
                 'query' => $validated['query'],
                 'user_id' => Auth::id()
             ]);
-            
+
             $history = new SearchHistory();
             $history->user_id = Auth::id();
             $history->query = $validated['query'];
@@ -90,7 +90,7 @@ class SearchHistoryController extends Controller
         }
     }
 
-    
+
 
     /**
      * Hapus riwayat pencarian
@@ -101,9 +101,9 @@ class SearchHistoryController extends Controller
             $history = SearchHistory::where('id', $id)
                 ->where('user_id', Auth::id())
                 ->firstOrFail();
-                
+
             $history->delete();
-            
+
             return back()->with('success', 'Riwayat pencarian berhasil dihapus');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return back()->with('error', 'Riwayat pencarian tidak ditemukan atau Anda tidak memiliki akses');
@@ -122,9 +122,9 @@ class SearchHistoryController extends Controller
             $user = Auth::user();
             $count = SearchHistory::where('user_id', $user->id)->count();
             SearchHistory::where('user_id', $user->id)->delete();
-            
-            return back()->with('success', $count > 0 ? 
-                "Berhasil menghapus $count riwayat pencarian" : 
+
+            return back()->with('success', $count > 0 ?
+                "Berhasil menghapus $count riwayat pencarian" :
                 'Tidak ada riwayat pencarian untuk dihapus');
         } catch (\Exception $e) {
             Log::error('Error deleting all search histories: ' . $e->getMessage());
