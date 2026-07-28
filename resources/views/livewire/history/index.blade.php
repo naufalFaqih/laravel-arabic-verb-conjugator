@@ -14,19 +14,19 @@
     <div class="px-4 py-5 sm:px-6 flex justify-between">
         <div>
             <h3 class="text-lg leading-6 font-medium text-gray-900">
-                Search History
+                {{ __('messages.search_history_title') }}
             </h3>
             <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                List of words you have searched for before.
+                {{ __('messages.search_history_subtitle') }}
             </p>
         </div>
 
         @if(count($this->histories) > 0)
             <button type="button"
                     wire:click="deleteAll"
-                    wire:confirm="Apakah Anda yakin ingin menghapus semua riwayat pencarian?"
+                    wire:confirm="{{ __('messages.confirm_delete') }}"
                     class="px-3 py-1 text-xs text-red-600 hover:text-red-800 border border-red-300 rounded hover:bg-red-50">
-                Delete all
+                {{ __('messages.clear_history') }}
             </button>
         @endif
     </div>
@@ -34,10 +34,10 @@
     <div class="border-t border-gray-200">
         <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
             <dt class="text-sm font-medium text-gray-500">
-                Last Login
+                {{ __('messages.search_date') }}
             </dt>
             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {{ Auth::user()->last_login_at ? Auth::user()->last_login_at->format('d M Y, H:i') : 'Tidak tersedia' }}
+                {{ Auth::user()->last_login_at ? Auth::user()->last_login_at->format('d M Y, H:i') : '-' }}
             </dd>
         </div>
     </div>
@@ -45,7 +45,7 @@
     <div class="p-4">
         @if(! $this->isAvailable())
             <div class="text-center py-8 text-gray-500">
-                <p>Sistem riwayat pencarian belum tersedia.</p>
+                <p>{{ __('messages.empty_history_message') }}</p>
             </div>
         @elseif(count($this->histories) > 0)
             <div class="divide-y divide-gray-200">
@@ -62,13 +62,13 @@
                         </div>
                         <div class="flex items-center space-x-2">
                             <a href="/search?query={{ urlencode($history->query) }}" class="text-indigo-600 hover:text-indigo-900 text-sm">
-                                Search again
+                                {{ __('messages.search') }}
                             </a>
                             <button type="button"
                                     wire:click="deleteOne({{ $history->id }})"
-                                    wire:confirm="Hapus riwayat pencarian ini?"
+                                    wire:confirm="{{ __('messages.confirm_delete') }}"
                                     class="text-red-500 hover:text-red-700 text-sm">
-                                delete
+                                {{ __('messages.delete') }}
                             </button>
                         </div>
                     </div>
@@ -76,7 +76,7 @@
             </div>
         @else
             <div class="text-center py-8 text-gray-500">
-                <p>No search history yet.</p>
+                <p>{{ __('messages.empty_history_message') }}</p>
             </div>
         @endif
     </div>

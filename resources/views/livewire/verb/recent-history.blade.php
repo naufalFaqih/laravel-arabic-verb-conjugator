@@ -1,8 +1,8 @@
 <div class="mt-8 p-6 bg-gray-50 rounded-lg shadow-md border border-gray-100">
     <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-gray-800">Recent Search History</h3>
+        <h3 class="text-lg font-semibold text-gray-800">{{ __('messages.recent_searches') }}</h3>
         <a href="{{ route('history') }}" class="text-sm text-indigo-600 hover:text-indigo-800">
-            See All
+            {{ __('messages.view') }}
         </a>
     </div>
 
@@ -15,12 +15,12 @@
                         <div class="text-xs text-gray-500">{{ $history->created_at->diffForHumans() }}</div>
                     </div>
                     <a href="/search?query={{ urlencode($history->query) }}" class="ml-4 text-indigo-600 hover:text-indigo-900 text-sm">
-                        Search Again
+                        {{ __('messages.search') }}
                     </a>
                 </div>
             @endforeach
         </div>
     @else
-        <p class="text-gray-500 text-sm">No Search History Yet.</p>
+        <p class="text-gray-500 text-sm">{{ __('messages.no_history') }}.</p>
     @endif
 </div>
