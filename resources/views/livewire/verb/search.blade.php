@@ -5,13 +5,13 @@
             @auth
                 <div class="flex flex-col sm:flex-row items-center justify-between">
                     <div class="mb-4 sm:mb-0">
-                        <h2 class="text-xl font-bold text-gray-800">Welcome, {{ Auth::user()->name }}!</h2>
+                        <h2 class="text-xl font-bold text-gray-800">{{ __('messages.welcome_back') }}, {{ Auth::user()->name }}!</h2>
                     </div>
                     <div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                                Logout
+                                {{ __('messages.logout') }}
                             </button>
                         </form>
                     </div>
@@ -19,12 +19,12 @@
             @else
                 <div class="flex flex-col sm:flex-row items-center justify-between">
                     <div class="mb-4 sm:mb-0">
-                        <h2 class="text-xl font-bold text-gray-800">Welcome To Tashrif Arabic Verbs</h2>
-                        <p class="text-sm text-gray-600">Please login to access full feature.</p>
+                        <h2 class="text-xl font-bold text-gray-800">Tashrif Arabic Verbs</h2>
+                        <p class="text-sm text-gray-600">{{ __('messages.search_history_subtitle') }}</p>
                     </div>
                     <div class="space-x-2">
-                        <a href="{{ route('login') }}" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 inline-block">Login</a>
-                        <a href="{{ route('register') }}" class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 inline-block">Register</a>
+                        <a href="{{ route('login') }}" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 inline-block">{{ __('messages.login') }}</a>
+                        <a href="{{ route('register') }}" class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 inline-block">{{ __('messages.register') }}</a>
                     </div>
                 </div>
             @endauth
@@ -52,7 +52,7 @@
 
     {{-- Search form --}}
     <form wire:submit.prevent="search" class="mt-4 p-4 bg-gray-100 rounded-lg shadow-md" data-purpose="search-verb">
-        <label for="verb" class="block text-sm font-bold text-gray-700 text-center mb-2">Input Verb (Fiil):</label>
+        <label for="verb" class="block text-sm font-bold text-gray-700 text-center mb-2">{{ __('messages.search') }}:</label>
         <input
             type="text"
             id="verb"
@@ -61,7 +61,7 @@
             inputmode="none"
             autocomplete="off"
             class="block w-3/4 md:w-1/2 lg:w-1/3 mx-auto rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-md p-2 text-right font-bold arabic-input"
-            placeholder="اشتغل, سَلّمَ, لعب :Contoh"
+            placeholder="{{ __('messages.search_placeholder') }}"
             pattern="^[\u0600-\u06FF\s]+$"
             title="Hanya diperbolehkan karakter dalam bahasa Arab"
             required
@@ -71,14 +71,14 @@
             id="searchButton"
             class="mt-4 block mx-auto px-6 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-            Tashrif
+            {{ __('messages.search_button') }}
         </button>
     </form>
 
     {{-- Loading --}}
     <div wire:loading wire:target="search" class="mt-6 p-4 bg-gray-100 rounded-lg shadow-md text-center">
         <div class="spinner mx-auto"></div>
-        <p class="text-lg font-medium text-gray-700">Process Requests...</p>
+        <p class="text-lg font-medium text-gray-700">{{ __('messages.searching') }}</p>
     </div>
 
     @if($hasResult)

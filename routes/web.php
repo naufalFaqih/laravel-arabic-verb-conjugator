@@ -6,9 +6,17 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\TranslationController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Language Switcher
+|--------------------------------------------------------------------------
+*/
+Route::get('/lang/{locale}', [LanguageController::class, 'switchLanguage'])->name('lang.switch');
 
 /*
 |--------------------------------------------------------------------------

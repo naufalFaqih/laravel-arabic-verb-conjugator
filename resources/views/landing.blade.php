@@ -12,9 +12,20 @@
             <img src="{{ asset('img/logo_nav.png') }}" alt="ArabicMorph Logo" class="h-40 w-90 mr-3 mt-8">
           </div>
           <div class="flex items-center space-x-4">
+            <!-- Language Switcher -->
+            <div class="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg border border-gray-200 text-xs font-semibold">
+                <a href="{{ route('lang.switch', 'id') }}" 
+                   class="px-2.5 py-1 rounded-md transition-all duration-150 {{ app()->getLocale() == 'id' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                   ID
+                </a>
+                <a href="{{ route('lang.switch', 'en') }}" 
+                   class="px-2.5 py-1 rounded-md transition-all duration-150 {{ app()->getLocale() == 'en' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                   EN
+                </a>
+            </div>
             @guest
               <a href="{{ route('home') }}" class="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium">
-                Go to App
+                {{ __('messages.go_to_app') }}
               </a>
             @endguest
           </div>
@@ -28,14 +39,13 @@
       <!-- Main Hero -->
       <div class="text-center mb-16">
         <h2 class="text-5xl md:text-6xl font-extrabold text-gray-900 mb-6">
-          Master Arabic Verb Conjugation
+          {{ __('messages.hero_title') }}
         </h2>
         <p class="text-xl md:text-2xl text-gray-600 mb-4">
-          تصريف الأفعال العربية بسهولة ودقة
+          {{ __('messages.hero_subtitle') }}
         </p>
         <p class="text-lg text-gray-500 mb-8 max-w-3xl mx-auto">
-          Learn and practice Arabic verb conjugation (Tashrif Lughowi) with our comprehensive tool.
-          Perfect for students studying Arabic morphology.
+          {{ __('messages.hero_description') }}
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <a href="{{ route('home') }}"
@@ -43,11 +53,11 @@
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
-            Start Searching Now
+            {{ __('messages.start_searching') }}
           </a>
           <a href="#features"
              class="inline-flex items-center justify-center px-8 py-4 bg-white text-indigo-600 text-lg font-semibold rounded-lg hover:bg-gray-50 transition duration-200 shadow-md border-2 border-indigo-600">
-            Learn More
+            {{ __('messages.learn_more') }}
           </a>
         </div>
       </div>
@@ -57,27 +67,27 @@
         <!-- Feature 1 -->
         <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-indigo-600">
           <div class="text-5xl mb-4 text-center">📚</div>
-          <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Complete Tashrif Tables</h3>
+          <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">{{ __('messages.complete_tables') }}</h3>
           <p class="text-gray-600 text-center">
-            Get full conjugation tables including Madhi (ماضي), Mudhori (مضارع), and Amar (أمر) forms with all pronouns.
+            {{ __('messages.complete_tables_desc') }}
           </p>
         </div>
 
         <!-- Feature 2 -->
         <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-blue-600">
           <div class="text-5xl mb-4 text-center">🔍</div>
-          <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Smart Search Engine</h3>
+          <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">{{ __('messages.smart_search') }}</h3>
           <p class="text-gray-600 text-center">
-            Search any Arabic verb instantly and get accurate conjugation results with translation in Bahasa.
+            {{ __('messages.smart_search_desc') }}
           </p>
         </div>
 
         <!-- Feature 3 -->
         <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-purple-600">
           <div class="text-5xl mb-4 text-center">💾</div>
-          <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Search History</h3>
+          <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">{{ __('messages.search_history_feature') }}</h3>
           <p class="text-gray-600 text-center">
-            Save and review your previous searches. Track your learning progress (requires login).
+            {{ __('messages.search_history_feature_desc') }}
           </p>
         </div>
       </div>
